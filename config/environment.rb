@@ -9,3 +9,13 @@ ActiveRecord::Base.establish_connection(
 ActiveRecord::Base.logger = Logger.new(STDOUT)
 
 require_all 'app'
+
+require 'open-uri'
+require 'json'
+require 'rest-client'
+require 'net/http'
+require 'awesome_print'
+require 'tco'
+require 'rmagick'
+require 'catpix'
+require 'mini_magick'
