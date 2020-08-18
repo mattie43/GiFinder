@@ -59,15 +59,28 @@ class Gif < ActiveRecord::Base
     end
 
     def share_gif
-        # figure out how to share
+        url = URI("https://quick-easy-sms.p.rapidapi.com/send")
+
+        http = Net::HTTP.new(url.host, url.port)
+        http.use_ssl = true
+        http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+        request = Net::HTTP::Post.new(url)
+        request["x-rapidapi-host"] = ''
+        request["x-rapidapi-key"] = ''
+        request["content-type"] = 'application/x-www-form-urlencoded'
+
+        puts "Enter the number you would like to send this gif to:"
+        number = gets.chomp
+        puts "Enter a message to add:"
+        message = gets.chomp
+        request.body = "message=#{message}&toNumber=1#{number}"
+        welcome_screen
     end
 
 
     # in Gif class (class method)
     def self.view_gif_of_the_day
-        # retrieve and display
-        # option to save to category or share
-        # or return to selection screen
         url = "https://api.giphy.com/v1/gifs/trending?api_key=xS31BcM9rwVyfxhGdCMU8AGypUBgDyn7&limit=1&rating=g"
         uri = URI.parse(url)
         response = Net::HTTP.get_response(uri)

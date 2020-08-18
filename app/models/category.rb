@@ -16,7 +16,9 @@ class Category < ActiveRecord::Base
             puts "There is no gif with that nickname in this category."
         else
             puts gif.link
-            # add logic for sharing
+            puts "Would you like to share this gif? (y/n)"
+            input = gets.chomp
+            gif.share_gif if input.downcase == "y"
         end
     end
 
