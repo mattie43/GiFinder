@@ -13,6 +13,7 @@ gem 'awesome_print'
 # gem 'catpix'
 gem 'mini_magick'
 gem 'bcrypt', '~> 3.1.7'
+gem 'tty-prompt'
 
 #gem 'password'
 #gem 'open3'

@@ -86,7 +86,25 @@ end
 
 def welcome_screen
     # stretch: put a cool welcome gif here
-    puts "welcome screen check"
+    puts "Welcome to GiFinder!"
+    puts "This app allows you to search the giphy database and save your favorite gifs to your account."
+    puts "You can also sort your gifs into custom categories, and share your gifs with your friends!"
+    puts "To login, type \"login\". To create an account, type \"sign up\". To exit this application, type \"exit\"."
+
+    choice = gets.chomp
+
+    case choice
+    when "login"
+        User.login
+    when "sign up"
+        User.sign_up
+    when "exit"
+        exit
+    else
+        "That input was invalid. Please try again."
+        welcome_screen
+    end
+
     # ask user to login or sign up
 end
 
