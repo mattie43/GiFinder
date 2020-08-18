@@ -4,23 +4,37 @@ require_relative '../config/environment.rb'
 
 def img_test
     image = MiniMagick::Image.open("https://media.giphy.com/media/wHe2BPdK5moB6Rjy4d/giphy.gif")
-    image2 = Magick::Image.read(image.path)
-    binding.pry
-    # adding gifsicle to cut frames out
+    ImageOptimizer.new(image.path, quiet: true).optimize
+    image.resize "100x100"
+    # image2 = Magick::Image.read(image.path)
+    # binding.pry
 
-    # 5.times do
-    image.each do |frame|
-        binding.pry
-        Catpix::print_image frame.filename,
+    # gif.frames #=> [...]
+    # pdf.pages  #=> [...]
+    # psd.layers #=> [...]
+
+    # gif.frames.each_with_index do |frame, idx|
+    # frame.write("frame#{idx}.jpg")
+    # end
+
+    # adding gifsicle to cut frames out
+    # first_frame = gifsicle anim.gif '#0'
+
+    gif_frames = image.frames.length - 1
+
+    8.times do
+    gif_frames.times do |x|
+        Catpix::print_image image.frames[x].path,
         :limit_x => 1.0,
         :limit_y => 1.0,
         :center_x => false,
-        :center_y => true,
+        :center_y => false,
         :bg => "white",
         :bg_fill => false,
         :resolution => "low"
         sleep(0.09)
         system 'clear'
+    end
     end
     # end
     # image.contrast
