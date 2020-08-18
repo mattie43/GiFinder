@@ -1,0 +1,3 @@
+User.destroy_all
+Category.destroy_all
+Gif.destroy_all

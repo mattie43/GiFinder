@@ -48,3 +48,58 @@ def img_test
     #     :resolution => "low"
     # binding.pry
 end
+
+def frame_one
+    Catpix::print_image "firstframe.gif",
+        :limit_x => 0.5,
+        :limit_y => 0.5,
+        :center_x => true,
+        :center_y => true,
+        :bg => "white",
+        :bg_fill => false,
+        :resolution => "low"
+    sleep (0.09)
+    system 'clear'  
+end
+def frame_two
+    Catpix::print_image "secondframe.gif",
+        :limit_x => 0.5,
+        :limit_y => 0.5,
+        :center_x => true,
+        :center_y => true,
+        :bg => "white",
+        :bg_fill => false,
+        :resolution => "low"
+    sleep (0.09)
+    system 'clear'  
+end
+def frame_three
+    Catpix::print_image "thirdframe.gif",
+        :limit_x => 0.5,
+        :limit_y => 0.5,
+        :center_x => true,
+        :center_y => true,
+        :bg => "white",
+        :bg_fill => false,
+        :resolution => "low"
+    sleep (0.09)
+    system 'clear'  
+end
+
+def gif_test
+    system 'clear'
+    5.times do
+        frame_one
+        frame_two
+        frame_three
+    end
+end
+
+def welcome_screen
+    # stretch: put a cool welcome gif here
+
+    # ask user to login or sign up
+end
+
+
+binding.pry
