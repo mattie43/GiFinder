@@ -1,10 +1,10 @@
 # -category belongs to user
 # -category has many gifs
 class Category < ActiveRecord::Base
-    belongs_to :user
+    belongs_to :user, touch: true
+
     has_many :gifs
 
-        # Category class (instance method)
     def choose_gif
         # ask for nickname
         # stretch: display gif (if not just link)

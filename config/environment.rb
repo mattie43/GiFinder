@@ -22,5 +22,6 @@ require 'openssl'
 # require 'catpix'
 require 'mini_magick'
 require 'bcrypt'
-require 'image_optimizer'
+# require 'image_optimizer'
 require 'tty-prompt'
+

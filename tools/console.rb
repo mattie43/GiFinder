@@ -100,12 +100,14 @@ end
 
 def welcome_screen
     # stretch: put a cool welcome gif here
+
+    system('clear')
+    
     puts "Welcome to GiFinder!"
     puts "This app allows you to search the giphy database and save your favorite gifs to your account."
     puts "You can also sort your gifs into custom categories, and share your gifs with your friends!"
-    puts "To login, type \"login\". To create an account, type \"sign up\". To exit this application, type \"exit\"."
-
-    choice = gets.chomp
+    
+    choice = TTY::Prompt.new.select("What would you like to do?", %w(login sign\ up exit))
 
     case choice
     when "login"
@@ -114,12 +116,7 @@ def welcome_screen
         User.sign_up
     when "exit"
         exit
-    else
-        "That input was invalid. Please try again."
-        welcome_screen
     end
-
-    # ask user to login or sign up
 end
 
 

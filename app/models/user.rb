@@ -1,6 +1,3 @@
-# -user has many categories
-# -user has many gifs through categories
-
 class User < ActiveRecord::Base
     has_many :categories
     has_many :gifs, through: :categories
@@ -17,17 +14,19 @@ class User < ActiveRecord::Base
     end
 
     def self.login
-        puts "Please enter your username:"
-        username = gets.chomp
-        puts "Please enter your password:"
-        password = gets.chomp
+        system('clear')
+
+        username = TTY::Prompt.new.ask("Please enter your username:")
+        password = TTY::Prompt.new.mask("Please enter your password:")
 
         if !self.find_by(username: username).try(:authenticate, password)
             puts "Your username or password is incorrect, please try again."
             welcome_screen
         else
             self.current_user = self.find_by(username: username)
+            self.current_user.task_selection_screen
         end
+        
     end
 
     def self.username_taken?(username)
@@ -39,18 +38,19 @@ class User < ActiveRecord::Base
     end
 
     def self.sign_up
+        system('clear')
 
-        puts "Please enter your username:"
-        username = gets.chomp
+        username = TTY::Prompt.new.ask("Please enter your username:")
         if username_taken?(username)
-            puts "That username is taken, please try again."
+            puts "That username is taken. Push Enter to try again."
+            gets.chomp
             self.sign_up
         else
-            puts "Please enter your password:"
-            password = gets.chomp
+            password = TTY::Prompt.new.mask("Please enter your password:")
         
             self.create(username: username, password: password)
-            puts "Congratulations, your account has been created!"
+            puts "Congratulations, your account has been created! Push Enter to continue."
+            gets.chomp
             welcome_screen
         end
     end
@@ -61,34 +61,28 @@ class User < ActiveRecord::Base
         welcome_screen
     end
 
-    # User class (instance method)
     def task_selection_screen
-        puts "What would you like to do?"
-        puts "To create a category, type \"new category\""
-        puts "To view existing categories, type \"view categories\""
-        puts "To select a category, type \"select category\""
-        puts "To search for a gif, type \"search\""
-        puts "To view the gif of the day, type \"gif of the day\""
-        puts "To sign out, type \"sign out\""
-        
-        task = gets.chomp
+        system('clear')
+
+        task = TTY::Prompt.new.select("What would you like to do?", %w(
+            create\ a\ category
+            view\ existing\ categories
+            search\ for\ a\ gif
+            view\ the\ gif\ of\ the\ day
+            sign\ out
+        ))
 
         case task
-        when "new category"
+        when "create a category"
             self.create_category
-        when "view categories"
+        when "view existing categories"
             self.view_categories
-        when "select category"
-            self.select_category
-        when "search"
+        when "search for a gif"
             Gif.search_giphy
-        when "gif of the day"
+        when "view the gif of the day"
             Gif.view_gif_of_the_day
         when "sign out"
             self.sign_out
-        else
-            puts "That input is invalid, please try again."
-            task_selection_screen
         end
     end
 
@@ -99,88 +93,65 @@ class User < ActiveRecord::Base
     end
 
     def create_category
-        puts "What is the name of the new category?"
-        new_category = gets.chomp
+        system('clear')
 
-        Category.create(name: new_category, user_id: self.id)
+        new_category_name = TTY::Prompt.new.ask("What is the name of the new category?\n")
+
+        self.categories.find_or_create_by(name: new_category_name, user_id: self.id)
 
         puts "Thank you, your category has been created."
-
         self.return_to_selection_screen
     end
 
     # User class (instance method)
     def view_categories
-        if self.categories.length == 0
-            puts "You have not created any categories yet."
-            puts "If you would like to create one, type \"create category\". Otherwise, hit the Enter or Return key to return to the task selection screen."
-            
-            new_category = gets.chomp
+        system('clear')
 
-            if new_category == "create category"
+        if self.categories.length == 0
+            input = TTY::Prompt.new.select("You have not created any categories yet. What would you like to do?", %w(create\ a\ category return\ to\ menu))
+
+            if input == "create a category"
                 self.create_category
-            else
+            elsif input == "return to menu"
                 self.task_selection_screen
             end
 
         else
-            puts "Your categories are:"
-            self.categories.all.each do |category|
-                puts category.name
+            category_names = self.categories.all.map do |category|
+                category.name
             end
 
-            puts "To view gifs in a category, type that category's name. Otherwise, hit the Enter or Return key to return to the task selection screen."
+            category_names << "return to menu"
 
-            category_choice = gets.chomp
+            category_choice = TTY::Prompt.new.select("Select a category to view its gifs, or return to menu.", category_names)
 
             if self.categories.find_by(name: category_choice)
-                self.view_category(category_choice)
-            elsif category_choice == ""
-                self.return_to_selection_screen
-            else 
-                puts "Sorry, that is not a valid category."
-                self.return_to_selection_screen
+                self.view_gifs(category_choice)
+            elsif category_choice == "return to menu"
+                self.task_selection_screen
             end
         end
-
-        # check if categories, if none ask if user wishes to create one
-        # display list of categories, then ask to choose or return to task selection screen
     end
 
-    def view_category(category_name)
-        category = self.categories.find_by(name: category_name)
-        category.gifs.each do |gif|
-            puts gif.nickname
+    def view_gifs(category_name)
+        system('clear')
+
+        chosen_category = self.categories.find_by(name: category_name)
+        
+        gif_names = chosen_category.gifs.all.map do |gif|
+            gif.nickname
         end
 
-        puts "To view a gif, type its name. Otherwise, hit the Enter or Return key to return to the task selection screen."
+        gif_names << "return to menu"
 
-        gif_choice = gets.chomp
+        gif_choice = TTY::Prompt.new.select("Select a gif, or return to menu.", gif_names)
 
-        if self.gifs.find_by(name: gif_choice)
-            Gif.view_gif(gif_choice)
-        elsif gif_choice == ""
-            self.return_to_selection_screen
-        else 
-            puts "Sorry, that is not a valid gif."
-            self.return_to_selection_screen
-        end
-    end
-
-    # User class (instance method)
-    def select_category
-        puts "Please enter the category name:"
-        category_name = gets.chomp
-
-        if self.categories.find_by(name: category_name)
-            self.view_category(category_name)
-        elsif category_name == ""
-            self.return_to_selection_screen
-        else 
-            puts "Sorry, that is not a valid category."
-            self.return_to_selection_screen
+        if chosen_category.gifs.find_by(nickname: gif_choice)
+            # TODO: IMPLEMENT 
+            # Gif.view_gif(gif_choice)
+        elsif gif_choice == "return to menu"
+            self.task_selection_screen
         end
     end
-
 
 end

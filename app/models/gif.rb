@@ -1,10 +1,12 @@
 # -gif belongs to user through category
 # -gif belongs to category
 class Gif < ActiveRecord::Base
-    belongs_to :category
+    belongs_to :category, touch: true
+
     # delegate :user, :to => :category, :allow_nil => true
 
-    # in Gif class (class method)
+
+
     def self.search_giphy
         # search, find, display
         # user can save to category or share (or save then share)
@@ -56,6 +58,7 @@ class Gif < ActiveRecord::Base
         puts "Would you also like to share this gif? (y/n)"
         input = gets.chomp
         self.share_gif if input.downcase == "y"
+        User.current_user.task_selection_screen if input.downcase == "n"
     end
 
     def share_gif
