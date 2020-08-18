@@ -153,10 +153,6 @@ def view_gif_of_the_day
     # or return to selection screen
 end
 
-# User class (instance method)
-def sign_out
-    # clear user instance? set to nil or w/e
-    # return to welcome screen
-end
+
 
 binding.pry

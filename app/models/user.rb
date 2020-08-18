@@ -32,7 +32,7 @@ end
 
 def self.username_taken?(username)
     if self.find_by(username: username)
-       true 
+        true 
     else
         false
     end
@@ -55,4 +55,9 @@ def self.sign_up
         welcome_screen
     end
 end
+
+    def sign_out
+        self.class.current_user = false
+        welcome_screen
+    end
 end
