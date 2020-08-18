@@ -62,19 +62,48 @@ class User < ActiveRecord::Base
 
     # User class (instance method)
 def task_selection_screen
-    # create a category
-    # view existing categories (and then gifs within them, but we'll get to that)
-    # select a category
-    # search giphy
-    # gif of the day
-    # sign out
+    puts "What would you like to do?"
+    puts "To create a category, type \"new category\""
+    puts "To view existing categories, type \"view categories\""
+    puts "To select a category, type \"select category\""
+    puts "To search for a gif, type \"search\""
+    puts "To view the gif of the day, type \"gif of the day\""
+    puts "To sign out, type \"sign out\""
+    
+    task = gets.chomp
+
+    case task
+    when "new category"
+        self.create_category
+    when "view categories"
+        self.view_categories
+    when "select category"
+        self.select_category
+    when "search"
+        Gif.search_giphy
+    when "gif of the day"
+        Gif.view_gif_of_the_day
+    when "sign out"
+        self.sign_out
+    else
+        puts "That input is invalid, please try again."
+        task_selection_screen
+    end
 end
 
 # always have option to return to selection screen
 
 # User class (instance method)
 def create_category
-    # create category, then send back to selection screen
+    puts "What is the name of the new category?"
+    new_category = gets.chomp
+
+    Category.create(name: new_category, user_id: self.id)
+
+    puts "Thank you, your category has been created. To return to the task selection screen, hit the Enter or Return key."
+    gets.chomp
+    self.task_selection_screen
+
 end
 
 # User class (instance method)
