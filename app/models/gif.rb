@@ -17,8 +17,9 @@ class Gif < ActiveRecord::Base
         
         # choose original url specifically
         gif_link = search_results["data"][0]["url"]
-        # display gif
-        puts gif_link
+        
+        Gif.display_gif(gif_link)
+        
         new_gif = Gif.new(link: gif_link)
         new_gif.save_or_share
     end
@@ -88,9 +89,34 @@ class Gif < ActiveRecord::Base
         
         # choose original url specifically
         gif_link = search_results["data"][0]["url"]
-        # display gif
-        puts gif_link
+       
+        Gif.display_gif(gif_link)
+
         new_gif = Gif.new(link: gif_link)
         new_gif.save_or_share
+    end
+
+    def self.display_gif(giphy_link)
+        image = MiniMagick::Image.open(giphy_link)
+        # ImageOptimizer.new(image.path, quiet: true).optimize
+        image.resize "100x100"
+        binding.pry
+    
+        gif_frames = image.frames.length - 1
+    
+        5.times do
+            gif_frames.times do |x|
+                Catpix::print_image image.frames[x].path,
+                :limit_x => 1.0,
+                :limit_y => 1.0,
+                :center_x => false,
+                :center_y => false,
+                :bg => "white",
+                :bg_fill => false,
+                :resolution => "low"
+                sleep(0.09)
+                system 'clear'
+            end
+        end
     end
 end
