@@ -100,21 +100,7 @@ def welcome_screen
     # ask user to login or sign up
 end
 
-# User class (class method)
-def login
-    # get username
-    # get password
-    # set current user accordingly (global/class variable)
-end
 
-# User class (class method)
-def sign_up
-    # get username
-    # get password
-    # check if username already exists, if so ask for a different one
-    # save as new account
-    # then ask to login
-end
 
 # User class (instance method)
 def task_selection_screen

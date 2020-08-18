@@ -13,6 +13,7 @@ GEM
       tzinfo (~> 1.1)
       zeitwerk (~> 2.2, >= 2.2.2)
     awesome_print (1.8.0)
+    bcrypt (3.1.15)
     catpix (0.2.0)
       docopt (~> 0.5, >= 0.5.0)
       rmagick (~> 2.15, >= 2.15.2)
@@ -78,6 +79,7 @@ PLATFORMS
 DEPENDENCIES
   activerecord
   awesome_print
+  bcrypt (~> 3.1.7)
   catpix
   mini_magick
   pry
