@@ -4,7 +4,7 @@
 class User < ActiveRecord::Base
     has_many :categories
     has_many :gifs, through: :categories
-    @@current_user
+    @@current_user = false
 
     has_secure_password
 
@@ -16,7 +16,6 @@ class User < ActiveRecord::Base
         @@current_user = user
     end
 
-    # User class (class method)
 def self.login
     puts "Please enter your username:"
     username = gets.chomp
@@ -26,8 +25,9 @@ def self.login
     if !self.find_by(username: username).try(:authenticate, password)
         puts "Your username or password is incorrect, please try again."
         welcome_screen
+    else
+        self.current_user = self.find_by(username: username)
     end
-    # set current user accordingly (global/class variable)
 end
 
 def self.username_taken?(username)
@@ -50,7 +50,7 @@ def self.sign_up
         puts "Please enter your password:"
         password = gets.chomp
     
-        self.current_user = self.create(username: username, password: password)
+        self.create(username: username, password: password)
         puts "Congratulations, your account has been created!"
         welcome_screen
     end
