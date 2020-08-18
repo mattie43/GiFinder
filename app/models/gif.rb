@@ -10,13 +10,16 @@ class Gif < ActiveRecord::Base
         # user can save to category or share (or save then share)
         puts "Input search query or phrase:"
         query = gets.chomp
-        url = "https://api.giphy.com/v1/gifs/search?api_key=xS31BcM9rwVyfxhGdCMU8AGypUBgDyn7&q=#{query}&limit=25&offset=0&rating=g&lang=en"
+        # gifs or stickers?
+        # url = "https://api.giphy.com/v1/gifs/search?api_key=xS31BcM9rwVyfxhGdCMU8AGypUBgDyn7&q=#{query}&limit=1&offset=0&rating=g&lang=en"
+        url = "https://api.giphy.com/v1/stickers/search?api_key=66Rc1TaQlSjbXoKrdrLoHIh5LPS2Ilk4&q=#{query}&limit=1&offset=0&rating=g&lang=en"
         uri = URI.parse(url)
         response = Net::HTTP.get_response(uri)
         search_results = JSON.parse(response.body)
         
         # choose original url specifically
-        gif_link = search_results["data"][0]["url"]
+        gif_link = search_results["data"][0]["images"]["preview"]["mp4"]
+        # binding.pry
         
         Gif.display_gif(gif_link)
         
@@ -25,38 +28,33 @@ class Gif < ActiveRecord::Base
     end
 
     def save_or_share
-        puts "Would you like to 'save' or 'share' this gif?"
-        puts "You can also 'return' to the selection screen."
-        save_share = gets.chomp
-        if save_share.downcase == "save"
+        prompt = TTY::Prompt.new
+        answer = prompt.select("What would you like to do with this gif?") do |menu|
+            menu.choice "Save"
+            menu.choice "Share"
+            menu.choice "Return to menu"
+        end
+        # wonder if i can clean this up?
+        if save_share.downcase == "Save"
             self.save_gif
-        elsif save_share.downcase == "share"
+        elsif save_share.downcase == "Share"
             self.share_gif
-        elsif save_share.downcase == "return"
+        elsif save_share.downcase == "Return to menu"
             welcome_screen
-        else
-            puts "Invalid input"
-            self.save_or_share
         end
     end
 
     def save_gif
-        puts "Which category would you like to save this too?"
-        puts "You can also create a new category by typing it now!"
+        prompt = TTY::Prompt.new
         #display categories
-        User.current_user.categories.each { |c| puts c.name }
-        answer = gets.chomp
+        choices = User.current_user.categories.map { |c| c.name } << "Create new"
+        answer = prompt.enum_select("Which category would you like to save this too?", choices)
+        answer = prompt.ask("Enter new category name") if answer == "Create new"
         #check if category exists, then create
-        category = User.current_user.categories.find_or_create_by(name: answer, user: User.current_user)
-        self.category = category
-        puts "Please add a nickname to this gif:"
-        self.nickname = gets.chomp
+        self.category = User.current_user.categories.find_or_create_by(name: answer, user: User.current_user)
+        self.nickname = prompt.ask("Please add a nickname to this gif:")
         self.save
-
-        # maybe add sharing
-        puts "Would you also like to share this gif? (y/n)"
-        input = gets.chomp
-        self.share_gif if input.downcase == "y"
+        self.share_gif if prompt.yes?("Would you also like to share this gif?")
     end
 
     def share_gif
@@ -88,7 +86,7 @@ class Gif < ActiveRecord::Base
         search_results = JSON.parse(response.body)
         
         # choose original url specifically
-        gif_link = search_results["data"][0]["url"]
+        gif_link = search_results["data"][0]["images"]["preview"]["mp4"]
        
         Gif.display_gif(gif_link)
 
@@ -97,24 +95,26 @@ class Gif < ActiveRecord::Base
     end
 
     def self.display_gif(giphy_link)
+        system 'clear'
         image = MiniMagick::Image.open(giphy_link)
         # ImageOptimizer.new(image.path, quiet: true).optimize
-        image.resize "100x100"
-        binding.pry
+        # not sure if we want to resize here or not
+        # image.resize "100x100"
+        # binding.pry
     
         gif_frames = image.frames.length - 1
     
         5.times do
             gif_frames.times do |x|
                 Catpix::print_image image.frames[x].path,
-                :limit_x => 1.0,
-                :limit_y => 1.0,
+                :limit_x => 0.8,
+                :limit_y => 0.8,
                 :center_x => false,
                 :center_y => false,
-                :bg => "white",
-                :bg_fill => false,
+                :bg => "black",
+                :bg_fill => true,
                 :resolution => "low"
-                sleep(0.09)
+                sleep(0.1)
                 system 'clear'
             end
         end

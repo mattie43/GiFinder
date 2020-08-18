@@ -2,9 +2,7 @@
 require_relative '../config/environment.rb'
 
 def welcome_screen
-    # stretch: put a cool welcome gif here
-    puts "welcome screen check"
-    # ask user to login or sign up
+    Gif.display_gif("https://media.giphy.com/media/BLy7N6MJNYCeMeuB18/giphy.gif")
 end
 
 binding.pry
