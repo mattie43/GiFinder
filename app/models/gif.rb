@@ -10,8 +10,8 @@ class Gif < ActiveRecord::Base
         puts "Input search query or phrase:"
         query = gets.chomp
         # gifs or stickers?
-        # url = "https://api.giphy.com/v1/gifs/search?api_key=xS31BcM9rwVyfxhGdCMU8AGypUBgDyn7&q=#{query}&limit=10&offset=0&rating=g&lang=en"
-        url = "https://api.giphy.com/v1/stickers/search?api_key=66Rc1TaQlSjbXoKrdrLoHIh5LPS2Ilk4&q=#{query}&limit=10&offset=0&rating=g&lang=en"
+        # url = "https://api.giphy.com/v1/gifs/search?api_key=#{ENV['GIPHY_KEY']}&q=#{query}&limit=10&offset=0&rating=g&lang=en"
+        url = "https://api.giphy.com/v1/stickers/search?api_key=#{ENV['GIPHY_KEY']}&q=#{query}&limit=10&offset=0&rating=g&lang=en"
         # display multiple gifs titles
         # then display what they want
         uri = URI.parse(url)
@@ -59,6 +59,18 @@ class Gif < ActiveRecord::Base
         User.current_user.task_selection_screen
     end
 
+    def share_gif
+        answer = TTY::Prompt.new.select("Where would you like to send this?", %w(Twitter Text Return\ to\ menu))
+        case answer
+        when "Twitter"
+            self.tweet_gif
+        when "Text"
+            self.text_gif
+        when "Return to menu"
+            User.current_user.task_selection_screen
+        end
+    end
+
     def text_gif
         url = URI("https://quick-easy-sms.p.rapidapi.com/send")
 
@@ -68,28 +80,52 @@ class Gif < ActiveRecord::Base
 
         request = Net::HTTP::Post.new(url)
         request["x-rapidapi-host"] = 'quick-easy-sms.p.rapidapi.com'
-        request["x-rapidapi-key"] = RAPID_API_KEY
+        request["x-rapidapi-key"] = ENV['RAPID_API_KEY']
         request["content-type"] = 'application/x-www-form-urlencoded'
 
         puts "Enter the number you would like to send this gif to:"
         number = gets.chomp
         puts "Enter a message to add:"
         message = gets.chomp
-        request.body = "message=#{message}&toNumber=1#{number}"
+        request.body = "message=#{message}#{self.link}&toNumber=1#{number}"
         # show them a seccessful message sent
         User.current_user.task_selection_screen
     end
 
     def tweet_gif
+        # url = "https://api.twitter.com/oauth/request_token"
+        # uri = URI.parse(url)
+        # response = Net::HTTP.get_response(uri)
+        # search_results = JSON.parse(response.body)
+        client = Twitter::REST::Client.new do |config|
+            config.consumer_key        = ENV['TWITTER_KEY']
+            config.consumer_secret     = ENV['TWITTER_SECRET']
+            config.bearer_token        = ENV['TWITTER_BEARER_TOKEN']
+            config.access_token        = ENV['ACCESS_TOKEN']
+            config.access_token_secret = ENV['ACCESS_SECRET']
+        end
+        answer = TTY::Prompt.new.ask("What would you like to say with this gif?")
+        client.update("#{answer}\n#{self.link}")
 
+        # url = URI("https://dev-udmy9c0g.us.auth0.com/api/v2/users/USER_ID")
+
+        # http = Net::HTTP.new(url.host, url.port)
+        # http.use_ssl = true
+        # http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+        # request = Net::HTTP::Get.new(url)
+        # request["authorization"] = 'Bearer #{ENV['OAUTH_BEARER]}'
+
+        # response = http.request(request)
+        # puts response.read_body
     end
 
 
     # in Gif class (class method)
     def self.view_gif_of_the_day
         # add top 10 trending
-        # url = "https://api.giphy.com/v1/gifs/trending?api_key=xS31BcM9rwVyfxhGdCMU8AGypUBgDyn7&limit=1&rating=g"
-        url = "https://api.giphy.com/v1/stickers/trending?api_key=xS31BcM9rwVyfxhGdCMU8AGypUBgDyn7&limit=10&rating=g"
+        # url = "https://api.giphy.com/v1/gifs/trending?api_key=#{ENV['GIPHY_KEY']}&limit=1&rating=g"
+        url = "https://api.giphy.com/v1/stickers/trending?api_key=#{ENV['GIPHY_KEY']}&limit=10&rating=g"
         uri = URI.parse(url)
         response = Net::HTTP.get_response(uri)
         search_results = JSON.parse(response.body)
