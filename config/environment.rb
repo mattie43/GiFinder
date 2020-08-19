@@ -1,6 +1,9 @@
 require 'bundler/setup'
 Bundler.require
 
+require 'dotenv'
+Dotenv.load('./.env')
+
 ActiveRecord::Base.establish_connection(
   adapter: 'sqlite3',
   database: "db/development.sqlite3"
@@ -9,6 +12,8 @@ ActiveRecord::Base.establish_connection(
 ActiveRecord::Base.logger = Logger.new(STDOUT)
 
 require_all 'app'
+
+
 
 require 'open-uri'
 require 'json'
@@ -25,4 +30,5 @@ require 't'
 require 'tco'
 require 'rmagick'
 require 'catpix'
+require 'dotenv'
 # require 'image_optimizer'

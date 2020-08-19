@@ -67,8 +67,8 @@ class Gif < ActiveRecord::Base
         http.verify_mode = OpenSSL::SSL::VERIFY_NONE
 
         request = Net::HTTP::Post.new(url)
-        request["x-rapidapi-host"] = ''
-        request["x-rapidapi-key"] = ''
+        request["x-rapidapi-host"] = 'quick-easy-sms.p.rapidapi.com'
+        request["x-rapidapi-key"] = RAPID_API_KEY
         request["content-type"] = 'application/x-www-form-urlencoded'
 
         puts "Enter the number you would like to send this gif to:"
