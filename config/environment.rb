@@ -24,4 +24,3 @@ require 'mini_magick'
 require 'bcrypt'
 # require 'image_optimizer'
 require 'tty-prompt'
-
