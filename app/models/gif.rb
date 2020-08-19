@@ -86,7 +86,8 @@ class Gif < ActiveRecord::Base
 
 
     # in Gif class (class method)
-    def self.view_trending_gifs
+    def self.view_gif_of_the_day
+        # add top 10 trending
         # url = "https://api.giphy.com/v1/gifs/trending?api_key=xS31BcM9rwVyfxhGdCMU8AGypUBgDyn7&limit=1&rating=g"
         url = "https://api.giphy.com/v1/stickers/trending?api_key=xS31BcM9rwVyfxhGdCMU8AGypUBgDyn7&limit=10&rating=g"
         uri = URI.parse(url)
