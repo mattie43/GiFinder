@@ -21,6 +21,7 @@ class User < ActiveRecord::Base
 
         if !self.find_by(username: username).try(:authenticate, password)
             puts "Your username or password is incorrect, please try again."
+            sleep(3.0)
             welcome_screen
         else
             self.current_user = self.find_by(username: username)
@@ -146,9 +147,12 @@ class User < ActiveRecord::Base
 
         gif_choice = TTY::Prompt.new.select("Select a gif, or return to menu.", gif_names)
 
+        gif_ins = chosen_category.gifs.find_by(nickname: gif_choice)
         if chosen_category.gifs.find_by(nickname: gif_choice)
-            # TODO: IMPLEMENT 
-            # Gif.view_gif(gif_choice)
+            Gif.display_gif(gif_ins.link)
+            # add delete/move
+            gif_ins.share_gif if TTY::Prompt.new.yes?("Would you like to share this gif?")
+            self.task_selection_screen
         elsif gif_choice == "return to menu"
             self.task_selection_screen
         end

@@ -2,10 +2,7 @@
 # -gif belongs to category
 class Gif < ActiveRecord::Base
     belongs_to :category, touch: true
-
     # delegate :user, :to => :category, :allow_nil => true
-
-
 
     def self.search_giphy
         # search, find, display
@@ -31,18 +28,14 @@ class Gif < ActiveRecord::Base
 
     def save_or_share
         prompt = TTY::Prompt.new
-        answer = prompt.select("What would you like to do with this gif?") do |menu|
-            menu.choice "Save"
-            menu.choice "Share"
-            menu.choice "Return to menu"
-        end
-        # wonder if i can clean this up?
-        if save_share.downcase == "Save"
+        answer = prompt.select("What would you like to do with this gif?", %w(Save Share Return\ to\ menu))
+        case answer
+        when "Save"
             self.save_gif
-        elsif save_share.downcase == "Share"
+        when "Share"
             self.share_gif
-        elsif save_share.downcase == "Return to menu"
-            welcome_screen
+        when "Return to menu"
+            User.current_user.task_selection_screen
         end
     end
 
@@ -57,6 +50,7 @@ class Gif < ActiveRecord::Base
         self.nickname = prompt.ask("Please add a nickname to this gif:")
         self.save
         self.share_gif if prompt.yes?("Would you also like to share this gif?")
+        User.current_user.task_selection_screen
     end
 
     def share_gif
@@ -76,13 +70,15 @@ class Gif < ActiveRecord::Base
         puts "Enter a message to add:"
         message = gets.chomp
         request.body = "message=#{message}&toNumber=1#{number}"
-        welcome_screen
+        # show them a seccessful message sent
+        User.current_user.task_selection_screen
     end
 
 
     # in Gif class (class method)
     def self.view_gif_of_the_day
-        url = "https://api.giphy.com/v1/gifs/trending?api_key=xS31BcM9rwVyfxhGdCMU8AGypUBgDyn7&limit=1&rating=g"
+        # url = "https://api.giphy.com/v1/gifs/trending?api_key=xS31BcM9rwVyfxhGdCMU8AGypUBgDyn7&limit=1&rating=g"
+        url = "https://api.giphy.com/v1/stickers/trending?api_key=xS31BcM9rwVyfxhGdCMU8AGypUBgDyn7&limit=1&rating=g"
         uri = URI.parse(url)
         response = Net::HTTP.get_response(uri)
         search_results = JSON.parse(response.body)
