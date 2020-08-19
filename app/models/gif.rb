@@ -17,7 +17,7 @@ class Gif < ActiveRecord::Base
         search_results = JSON.parse(response.body)
         
         # choose original url specifically
-        gif_link = search_results["data"][0]["images"]["preview"]["mp4"]
+        gif_link = search_results["data"][0]["images"]["original"]["url"]
         # binding.pry
         
         Gif.display_gif(gif_link)
@@ -84,7 +84,7 @@ class Gif < ActiveRecord::Base
         search_results = JSON.parse(response.body)
         
         # choose original url specifically
-        gif_link = search_results["data"][0]["images"]["preview"]["mp4"]
+        gif_link = search_results["data"][0]["images"]["original"]["url"]
        
         Gif.display_gif(gif_link)
 
@@ -101,6 +101,8 @@ class Gif < ActiveRecord::Base
         # binding.pry
     
         gif_frames = image.frames.length - 1
+
+        # attempt to save, then load all the frames for faster output
     
         5.times do
             gif_frames.times do |x|
