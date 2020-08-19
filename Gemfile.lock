@@ -12,42 +12,135 @@ GEM
       minitest (~> 5.1)
       tzinfo (~> 1.1)
       zeitwerk (~> 2.2, >= 2.2.2)
+    addressable (2.7.0)
+      public_suffix (>= 2.0.2, < 5.0)
+    async (1.26.2)
+      console (~> 1.0)
+      nio4r (~> 2.3)
+      timers (~> 4.1)
+    async-io (1.30.0)
+      async (~> 1.14)
+    async-websocket (0.8.0)
+      async-io
+      websocket-driver (~> 0.7.0)
     awesome_print (1.8.0)
     bcrypt (3.1.15)
+    builder (3.2.4)
     coderay (1.1.3)
     concurrent-ruby (1.1.7)
+    console (1.9.0)
+    declarative (0.0.20)
+    declarative-option (0.1.0)
     domain_name (0.5.20190701)
       unf (>= 0.0.5, < 1.0.0)
     dotenv (2.7.6)
+    dry-configurable (0.11.6)
+      concurrent-ruby (~> 1.0)
+      dry-core (~> 0.4, >= 0.4.7)
+      dry-equalizer (~> 0.2)
+    dry-container (0.7.2)
+      concurrent-ruby (~> 1.0)
+      dry-configurable (~> 0.1, >= 0.1.3)
+    dry-core (0.4.9)
+      concurrent-ruby (~> 1.0)
+    dry-equalizer (0.3.0)
+    dry-inflector (0.2.0)
+    dry-logic (1.0.7)
+      concurrent-ruby (~> 1.0)
+      dry-core (~> 0.2)
+      dry-equalizer (~> 0.2)
+    dry-types (1.4.0)
+      concurrent-ruby (~> 1.0)
+      dry-container (~> 0.3)
+      dry-core (~> 0.4, >= 0.4.4)
+      dry-equalizer (~> 0.3)
+      dry-inflector (~> 0.1, >= 0.1.2)
+      dry-logic (~> 1.0, >= 1.0.2)
+    facebook-cli (1.7.1)
+      gli (~> 2.14)
+      json (~> 2.0)
+      jsonpath (~> 0.5)
+      koala (~> 3.0)
+    faraday (1.0.1)
+      multipart-post (>= 1.2, < 3)
+    faraday_middleware (1.0.0)
+      faraday (~> 1.0)
+    foreman (0.87.2)
+    gli (2.19.2)
+    grape (1.4.0)
+      activesupport
+      builder
+      dry-types (>= 1.1)
+      mustermann-grape (~> 1.0.0)
+      rack (>= 1.3.0)
+      rack-accept
+    grape-roar (0.4.1)
+      grape
+      multi_json
+      roar (~> 1.1.0)
+    grape-swagger (1.2.1)
+      grape (~> 1.3)
+    hashie (4.1.0)
     http-accept (1.7.0)
     http-cookie (1.0.3)
       domain_name (~> 0.5)
     i18n (1.8.5)
       concurrent-ruby (~> 1.0)
+    json (2.3.1)
+    jsonpath (0.9.9)
+      multi_json
+      to_regexp (~> 0.2.1)
+    kaminari-core (1.2.1)
+    kaminari-grape (1.0.1)
+      grape
+      kaminari-core (~> 1.0)
+    koala (3.0.0)
+      addressable
+      faraday
+      json (>= 1.8)
     method_source (1.0.0)
     mime-types (3.3.1)
       mime-types-data (~> 3.2015)
     mime-types-data (3.2020.0512)
     mini_magick (4.10.1)
     minitest (5.14.1)
+    multi_json (1.15.0)
+    multipart-post (2.1.1)
     mustermann (1.1.1)
       ruby2_keywords (~> 0.0.1)
+    mustermann-grape (1.0.1)
+      mustermann (>= 1.0.0)
     netrc (0.11.0)
+    nio4r (2.5.2)
     pastel (0.8.0)
       tty-color (~> 0.5)
     pry (0.13.1)
       coderay (~> 1.1)
       method_source (~> 1.0)
+    public_suffix (4.0.5)
     rack (2.2.3)
+    rack-accept (0.4.5)
+      rack (>= 0.4)
+    rack-cors (1.1.1)
+      rack (>= 2.0.0)
     rack-protection (2.0.8.1)
       rack
+    rack-rewrite (1.5.1)
+    rack-server-pages (0.1.0)
+      rack
     rake (13.0.1)
+    representable (3.0.4)
+      declarative (< 0.1.0)
+      declarative-option (< 0.2.0)
+      uber (< 0.2.0)
     require_all (3.0.0)
     rest-client (2.1.0)
       http-accept (>= 1.7.0, < 2.0)
       http-cookie (>= 1.0.2, < 2.0)
       mime-types (>= 1.16, < 4.0)
       netrc (~> 0.8)
+    roar (1.1.0)
+      representable (~> 3.0.0)
     ruby2_keywords (0.0.2)
     sinatra (2.0.8.1)
       mustermann (~> 1.0)
@@ -57,9 +150,31 @@ GEM
     sinatra-activerecord (2.0.18)
       activerecord (>= 4.1)
       sinatra (>= 1.0)
+    slack-ruby-bot (0.16.0)
+      hashie
+      slack-ruby-client (>= 0.14.0)
+    slack-ruby-bot-server (0.12.2)
+      async-websocket (~> 0.8.0)
+      foreman
+      grape
+      grape-roar (>= 0.4.0)
+      grape-swagger
+      kaminari-grape
+      rack-cors
+      rack-rewrite
+      rack-server-pages
+      slack-ruby-bot (>= 0.12.0)
+    slack-ruby-client (0.15.0)
+      faraday (>= 1.0)
+      faraday_middleware
+      gli
+      hashie
+      websocket-driver
     sqlite3 (1.4.2)
     thread_safe (0.3.6)
     tilt (2.0.10)
+    timers (4.3.0)
+    to_regexp (0.2.1)
     tty-color (0.5.2)
     tty-cursor (0.7.1)
     tty-prompt (0.22.0)
@@ -72,9 +187,13 @@ GEM
     tty-screen (0.8.1)
     tzinfo (1.2.7)
       thread_safe (~> 0.1)
+    uber (0.1.0)
     unf (0.1.4)
       unf_ext
     unf_ext (0.0.7.7)
+    websocket-driver (0.7.3)
+      websocket-extensions (>= 0.1.0)
+    websocket-extensions (0.1.5)
     wisper (2.0.1)
     zeitwerk (2.4.0)
 
@@ -86,12 +205,16 @@ DEPENDENCIES
   awesome_print
   bcrypt (~> 3.1.7)
   dotenv
+  facebook-cli
   mini_magick
   pry
   rake
   require_all
   rest-client
+  sinatra
   sinatra-activerecord
+  slack-ruby-bot-server
+  slack-ruby-client
   sqlite3
   tty-prompt
 
