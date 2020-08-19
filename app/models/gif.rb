@@ -10,8 +10,8 @@ class Gif < ActiveRecord::Base
         puts "Input search query or phrase:"
         query = gets.chomp
         # gifs or stickers?
-        # url = "https://api.giphy.com/v1/gifs/search?api_key=xS31BcM9rwVyfxhGdCMU8AGypUBgDyn7&q=#{query}&limit=1&offset=0&rating=g&lang=en"
-        url = "https://api.giphy.com/v1/stickers/search?api_key=66Rc1TaQlSjbXoKrdrLoHIh5LPS2Ilk4&q=#{query}&limit=1&offset=0&rating=g&lang=en"
+        # url = "https://api.giphy.com/v1/gifs/search?api_key=#{ENV['GIPHY_KEY']}&q=#{query}&limit=1&offset=0&rating=g&lang=en"
+        url = "https://api.giphy.com/v1/stickers/search?api_key=#{ENV['GIPHY_KEY']}&q=#{query}&limit=1&offset=0&rating=g&lang=en"
         uri = URI.parse(url)
         response = Net::HTTP.get_response(uri)
         search_results = JSON.parse(response.body)
@@ -77,16 +77,18 @@ class Gif < ActiveRecord::Base
 
     # in Gif class (class method)
     def self.view_gif_of_the_day
-        # url = "https://api.giphy.com/v1/gifs/trending?api_key=xS31BcM9rwVyfxhGdCMU8AGypUBgDyn7&limit=1&rating=g"
-        url = "https://api.giphy.com/v1/stickers/trending?api_key=xS31BcM9rwVyfxhGdCMU8AGypUBgDyn7&limit=1&rating=g"
+        # url = "https://api.giphy.com/v1/gifs/trending?api_key=#{ENV['GIPHY_KEY']}&limit=1&rating=g"
+        url = "https://api.giphy.com/v1/stickers/trending?api_key=#{ENV['GIPHY_KEY']}&limit=1&rating=g"
         uri = URI.parse(url)
         response = Net::HTTP.get_response(uri)
         search_results = JSON.parse(response.body)
         
         # choose original url specifically
         gif_link = search_results["data"][0]["images"]["original"]["url"]
-       
-        Gif.display_gif(gif_link)
+        
+        # REMOVE AFTER TEST
+        puts gif_link
+        # Gif.display_gif(gif_link)
 
         new_gif = Gif.new(link: gif_link)
         new_gif.save_or_share
