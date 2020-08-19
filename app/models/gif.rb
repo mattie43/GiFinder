@@ -10,15 +10,21 @@ class Gif < ActiveRecord::Base
         puts "Input search query or phrase:"
         query = gets.chomp
         # gifs or stickers?
-        # url = "https://api.giphy.com/v1/gifs/search?api_key=xS31BcM9rwVyfxhGdCMU8AGypUBgDyn7&q=#{query}&limit=1&offset=0&rating=g&lang=en"
-        url = "https://api.giphy.com/v1/stickers/search?api_key=66Rc1TaQlSjbXoKrdrLoHIh5LPS2Ilk4&q=#{query}&limit=1&offset=0&rating=g&lang=en"
+        # url = "https://api.giphy.com/v1/gifs/search?api_key=xS31BcM9rwVyfxhGdCMU8AGypUBgDyn7&q=#{query}&limit=10&offset=0&rating=g&lang=en"
+        url = "https://api.giphy.com/v1/stickers/search?api_key=66Rc1TaQlSjbXoKrdrLoHIh5LPS2Ilk4&q=#{query}&limit=10&offset=0&rating=g&lang=en"
+        # display multiple gifs titles
+        # then display what they want
         uri = URI.parse(url)
         response = Net::HTTP.get_response(uri)
         search_results = JSON.parse(response.body)
-        
+
+        # show top 10 results, and select from there which to display
+        titles_arr = []
+        10.times { |x| titles_arr << {search_results["data"][x]["title"] => x} }
+        answer = TTY::Prompt.new.enum_select("Which gif would you like to view?", titles_arr)
+
         # choose original url specifically
-        gif_link = search_results["data"][0]["images"]["original"]["url"]
-        # binding.pry
+        gif_link = search_results["data"][answer]["images"]["original"]["url"]
         
         Gif.display_gif(gif_link)
         
@@ -53,7 +59,7 @@ class Gif < ActiveRecord::Base
         User.current_user.task_selection_screen
     end
 
-    def share_gif
+    def text_gif
         url = URI("https://quick-easy-sms.p.rapidapi.com/send")
 
         http = Net::HTTP.new(url.host, url.port)
@@ -74,17 +80,26 @@ class Gif < ActiveRecord::Base
         User.current_user.task_selection_screen
     end
 
+    def tweet_gif
+
+    end
+
 
     # in Gif class (class method)
-    def self.view_gif_of_the_day
+    def self.view_trending_gifs
         # url = "https://api.giphy.com/v1/gifs/trending?api_key=xS31BcM9rwVyfxhGdCMU8AGypUBgDyn7&limit=1&rating=g"
-        url = "https://api.giphy.com/v1/stickers/trending?api_key=xS31BcM9rwVyfxhGdCMU8AGypUBgDyn7&limit=1&rating=g"
+        url = "https://api.giphy.com/v1/stickers/trending?api_key=xS31BcM9rwVyfxhGdCMU8AGypUBgDyn7&limit=10&rating=g"
         uri = URI.parse(url)
         response = Net::HTTP.get_response(uri)
         search_results = JSON.parse(response.body)
         
+        # show top 10 results, and select from there which to display
+        titles_arr = []
+        10.times { |x| titles_arr << {search_results["data"][x]["title"] => x} }
+        answer = TTY::Prompt.new.enum_select("Which gif would you like to view?", titles_arr)
+
         # choose original url specifically
-        gif_link = search_results["data"][0]["images"]["original"]["url"]
+        gif_link = search_results["data"][answer]["images"]["original"]["url"]
        
         Gif.display_gif(gif_link)
 
@@ -101,8 +116,6 @@ class Gif < ActiveRecord::Base
         # binding.pry
     
         gif_frames = image.frames.length - 1
-
-        # attempt to save, then load all the frames for faster output
     
         5.times do
             gif_frames.times do |x|

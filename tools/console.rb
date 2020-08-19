@@ -1,9 +1,13 @@
 # search giphy
 require_relative '../config/environment.rb'
 
-def welcome_screen
-    # add gif only when first opening the program
+
+def open_program
     Gif.display_gif("https://media.giphy.com/media/BLy7N6MJNYCeMeuB18/giphy.gif")
+    welcome_screen
+end
+
+def welcome_screen
 
     system('clear')
     
@@ -20,6 +24,29 @@ def welcome_screen
         User.sign_up
     when "exit"
         exit
+    end
+end
+
+# seems to load and display gif significantly faster then catpix
+# but requires rmagick and tco
+def img_test
+    image = MiniMagick::Image.open("https://media.giphy.com/media/3TxgmYL1UySl2/giphy.gif")
+    image.resize "50x50"
+    gif_frames = image.frames.length - 1
+    5.times do
+        gif_frames.times do |x|
+            img = Magick::Image::read(image.frames[x].path).first
+            # img2 = image.frames[x].path
+            # binding.pry
+            img.each_pixel do |pixel, col, row|
+                c = [pixel.red, pixel.green, pixel.blue].map { |v| 256 * (v / 65535.0) }
+                pixel.opacity == 65535 ? print("  ") : print("  ".bg c)
+                binding.pry
+                puts if col >= img.columns - 1
+            end
+            sleep(0.09)
+            system 'clear'
+        end
     end
 end
 
