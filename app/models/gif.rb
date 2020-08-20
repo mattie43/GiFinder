@@ -147,6 +147,7 @@ class Gif < ActiveRecord::Base
     def self.display_gif(giphy_link)
         system 'clear'
         image = MiniMagick::Image.open(giphy_link)
+        image.strip
         # ImageOptimizer.new(image.path, quiet: true).optimize
         # not sure if we want to resize here or not
         # image.resize "100x100"

@@ -25,7 +25,7 @@ class User < ActiveRecord::Base
             self.login
         else
             self.current_user = self.find_by(username: username)
-            print TTY::Box.success("Success! Signing you in..")
+            print TTY::Box.success("Welcome back #{username}!")
             sleep(2.0)
             self.current_user.task_selection_screen
         end
@@ -49,7 +49,7 @@ class User < ActiveRecord::Base
             password = TTY::Prompt.new.mask("Please enter your password:")
         
             new_user = self.create(username: username, password: password)
-            print TTY::Box.success("Welcome back #{username}!")
+            print TTY::Box.success("Success! Signing you in..")
             sleep(2.0)
             new_user.task_selection_screen
         end
@@ -93,9 +93,13 @@ class User < ActiveRecord::Base
 
         new_category_name = TTY::Prompt.new.ask("What is the name of the new category?\n")
 
-        self.categories.find_or_create_by(name: new_category_name, user_id: self.id)
-
-        print TTY::Box.success("#{new_category_name} has been successfully created!")
+        category_check = self.categories.find_by(name: new_category_name, user_id: self.id)
+        if category_check == nil
+            self.categories.create(name: new_category_name, user_id: self.id)
+            print TTY::Box.success("#{new_category_name} has been successfully created!")
+        else
+            print TTY::Box.info("#{new_category_name} already exists!")
+        end
         sleep(2.0)
         self.task_selection_screen
     end
@@ -150,10 +154,10 @@ class User < ActiveRecord::Base
         answer = TTY::Prompt.new.select("What would you like to do with this gif?", options)
         case answer
         when "Delete"
-            gif_ins.delete
             system 'clear'
-            print TTY::Box.warn("Gif successfully deleted.")
-            sleep(2.0)
+            print TTY::Box.warn("Gif will be deleted permanently.")
+            key_pressed = TTY::Prompt.new.keypress("Press ENTER to continue with deletion, or ESC to cancel.", keys: [:return, :escape])
+            gif_ins.delete if key_pressed == "\r"
             self.task_selection_screen
         when "Move categories"
             # add move
