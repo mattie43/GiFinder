@@ -1,5 +1,8 @@
 source "https://rubygems.org"
 
+gem 'bundler', :require => nil
+gem 'rubygems-update', :require => nil
+
 gem 'activerecord'
 gem 'sinatra-activerecord'
 gem 'rake'
@@ -9,7 +12,7 @@ gem 'pry'
 gem 'rest-client'
 gem 'awesome_print'
 gem 'tco'
-gem 'rmagick'
+# gem 'rmagick'
 gem 'catpix'
 gem 'mini_magick'
 gem 'bcrypt', '~> 3.1.7'
