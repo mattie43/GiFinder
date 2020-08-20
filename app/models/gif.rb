@@ -106,6 +106,7 @@ class Gif < ActiveRecord::Base
         end
         message = TTY::Prompt.new.ask("What would you like to say with this gif?")
         client.update("#{message}\n#{self.link}")
+        User.current_user.task_selection_screen
 
         # url = URI("https://dev-udmy9c0g.us.auth0.com/api/v2/users/USER_ID")
 
