@@ -1,5 +1,8 @@
 source "https://rubygems.org"
 
+gem 'bundler', :require => nil
+gem 'rubygems-update', :require => nil
+
 gem 'activerecord'
 gem 'sinatra-activerecord'
 gem 'rake'
@@ -23,6 +26,7 @@ gem 'pastel'
 gem 'tty-box'
 # gem 'twurl'
 # gem 'curl'
+gem 'launchy'
 # gem 'image_optimizer'
 # gem 'password'
 # gem 'open3'

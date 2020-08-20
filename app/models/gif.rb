@@ -42,7 +42,7 @@ class Gif < ActiveRecord::Base
         prompt = TTY::Prompt.new
         #display categories
         choices = User.current_user.categories.map { |c| c.name } << "Create new"
-        answer = prompt.enum_select("Which category would you like to save this too?", choices)
+        answer = prompt.enum_select("Which category would you like to save this to?", choices)
         answer = prompt.ask("Enter new category name") if answer == "Create new"
         #check if category exists, then create
         self.category = User.current_user.categories.find_or_create_by(name: answer, user: User.current_user)
@@ -53,7 +53,7 @@ class Gif < ActiveRecord::Base
     end
 
     def share_gif
-        answer = TTY::Prompt.new.select("Where would you like to send this?", %w(Twitter Text Return\ to\ menu))
+        answer = TTY::Prompt.new.select("Where would you like to send this?", %w(Twitter Text Slack Return\ to\ menu))
         case answer
         when "Twitter"
             Twitter.tweet_gif(self)
@@ -61,14 +61,14 @@ class Gif < ActiveRecord::Base
         when "Text"
             Text.text_gif(self)
             User.current_user.task_selection_screen
+        when "Slack"
+            Slack.slack_gif(self.link)
         when "Return to menu"
             User.current_user.task_selection_screen
         end
     end
-
-    # in Gif class (class method)
+    
     def self.view_top_trending
-        # add top 10 trending
         # url = "https://api.giphy.com/v1/gifs/trending?api_key=#{ENV['GIPHY_KEY']}&limit=1&rating=g"
         url = "https://api.giphy.com/v1/stickers/trending?api_key=#{ENV['GIPHY_KEY']}&limit=10&rating=g"
         uri = URI.parse(url)
@@ -94,9 +94,6 @@ class Gif < ActiveRecord::Base
         image = MiniMagick::Image.open(giphy_link)
         image.strip
         # ImageOptimizer.new(image.path, quiet: true).optimize
-        # not sure if we want to resize here or not
-        # image.resize "100x100"
-        # binding.pry
         
         gif_frames = image.frames.length - 1
         gif_frames = 15 if gif_frames > 15

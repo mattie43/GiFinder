@@ -55,7 +55,7 @@ GEM
     mime-types (3.3.1)
       mime-types-data (~> 3.2015)
     mime-types-data (3.2020.0512)
-    mini_magick (4.10.1)
+    mini_magick (4.7.2)
     minitest (5.14.1)
     multipart-post (2.1.1)
     mustermann (1.1.1)
@@ -92,6 +92,7 @@ GEM
     rmagick (2.16.0)
     ruby-terminfo (0.1.1)
     ruby2_keywords (0.0.2)
+    rubygems-update (3.1.4)
     simple_oauth (0.3.1)
     sinatra (2.0.8.1)
       mustermann (~> 1.0)
@@ -164,9 +165,11 @@ DEPENDENCIES
   activerecord
   awesome_print
   bcrypt (~> 3.1.7)
+  bundler
   catpix
   curl
   dotenv
+  launchy
   mini_magick
   omniauth
   omniauth-twitter
@@ -175,7 +178,7 @@ DEPENDENCIES
   rake
   require_all
   rest-client
-  rmagick
+  rubygems-update
   sinatra-activerecord
   sqlite3
   t
