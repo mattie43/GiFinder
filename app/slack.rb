@@ -1,31 +1,3 @@
-
-
-# ok so here's the flow
-# user wants to share their gif via slack
-# have they authorized us or not?
-# if no
-# puts instructions for copy/pasting code from redirect url
-# sleep 2 seconds
-# launch_url_for_code
-# add something to convert_code_to_acess_token that assigns the code to a variable
-# run the rest of convert_code_to_access_token
-# add something at the end that saves the access token to .env 
-# i just realized you don't even need it to be specific to the user because you only have one user per comp technically
-
-
-
-# if yes the user has authorized
-# would they like to post to a channel or send a dm
-# if channel
-# display list of public channels they're part of 
-# they select
-# if dm 
-# display list of people they can dm (currently only supporting one at a time maybe? if is_group is false or w/e)
-# they select
-# user inputs text they want to add to message
-# we send
-# the end
-
 module Slack
 @@access_token = ENV['SLACK_ACCESS_TOKEN']
 @@gif_link
