@@ -49,7 +49,7 @@ class Gif < ActiveRecord::Base
         prompt = TTY::Prompt.new
         #display categories
         choices = User.current_user.categories.map { |c| c.name } << "Create new"
-        answer = prompt.enum_select("Which category would you like to save this too?", choices)
+        answer = prompt.enum_select("Which category would you like to save this to?", choices)
         answer = prompt.ask("Enter new category name") if answer == "Create new"
         #check if category exists, then create
         self.category = User.current_user.categories.find_or_create_by(name: answer, user: User.current_user)
