@@ -153,6 +153,7 @@ class Gif < ActiveRecord::Base
         # binding.pry
     
         gif_frames = image.frames.length - 1
+        gif_frames = 15 if gif_frames > 15
     
         5.times do
             gif_frames.times do |x|
@@ -165,7 +166,7 @@ class Gif < ActiveRecord::Base
                 :bg => "black",
                 :bg_fill => true,
                 :resolution => "low"
-                sleep(0.1)
+                sleep(0.09)
             end
         end
     end

@@ -28,7 +28,7 @@ end
 # seems to load and display gif significantly faster then catpix
 # but requires rmagick and tco
 def img_test
-    image = MiniMagick::Image.open("https://media.giphy.com/media/3TxgmYL1UySl2/giphy.gif")
+    image = MiniMagick::Image.open("https://media.giphy.com/media/MWtVSXiqOYuqdfvqb0/giphy.gif")
     image.resize "50x50"
     gif_frames = image.frames.length - 1
     5.times do
@@ -39,7 +39,7 @@ def img_test
             img.each_pixel do |pixel, col, row|
                 c = [pixel.red, pixel.green, pixel.blue].map { |v| 256 * (v / 65535.0) }
                 pixel.opacity == 65535 ? print("  ") : print("  ".bg c)
-                binding.pry
+                # binding.pry
                 puts if col >= img.columns - 1
             end
             sleep(0.09)
