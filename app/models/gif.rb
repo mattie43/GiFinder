@@ -60,12 +60,14 @@ class Gif < ActiveRecord::Base
     end
 
     def share_gif
-        answer = TTY::Prompt.new.select("Where would you like to send this?", %w(Twitter Text Return\ to\ menu))
+        answer = TTY::Prompt.new.select("Where would you like to send this?", %w(Twitter Text Slack Return\ to\ menu))
         case answer
         when "Twitter"
             self.tweet_gif
         when "Text"
             self.text_gif
+        when "Slack"
+            Slack.slack_gif(self.link)
         when "Return to menu"
             User.current_user.task_selection_screen
         end

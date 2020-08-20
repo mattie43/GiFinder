@@ -1,12 +1,4 @@
-require 'launchy'
-require 'net/http'
-require 'uri'
-require 'json'
-require 'pry'
-require 'dotenv'
-require 'tty-prompt'
-require 'awesome_print'
-Dotenv.load('.env')
+
 
 # ok so here's the flow
 # user wants to share their gif via slack
@@ -20,7 +12,7 @@ Dotenv.load('.env')
 # add something at the end that saves the access token to .env 
 # i just realized you don't even need it to be specific to the user because you only have one user per comp technically
 
-# DOING THIS FIRST:
+
 
 # if yes the user has authorized
 # would they like to post to a channel or send a dm
@@ -35,8 +27,32 @@ Dotenv.load('.env')
 # the end
 
 module Slack
+@@access_token = ENV['SLACK_ACCESS_TOKEN']
+@@gif_link
 
-    def self.slack_gif
+    def self.access_token
+        @@access_token
+    end
+
+    def self.access_token=(token)
+        @@access_token = token
+    end
+
+    def self.gif_link
+        @@gif_link
+    end
+
+    def self.gif_link=(link)
+        @@gif_link = link
+    end
+
+    def self.slack_gif(gif_link)
+        self.gif_link = gif_link
+
+        if !self.access_token
+            self.sign_in
+        end
+
         prompt = TTY::Prompt.new
         answer = prompt.select("Would you like to share this with a channel or send a direct message?", %w(share\ with\ a\ channel send\ a\ direct\ message never\ mind,\ return\ to\ menu))
         
@@ -50,9 +66,34 @@ module Slack
         end
     end
 
+    def self.sign_in
+        puts "Please authorize this app. When your browser window opens, click \"Allow\"."
+        puts "When your browser tries to redirect you, copy the portion of the url between \"code=\" and \"&state\" and paste it here."
+        puts "Push Enter to continue."
+        gets.chomp
+        self.launch_url_for_code
+        code = gets.chomp
+
+        self.convert_code_to_access_token(code)
+    end
+
+    def self.launch_url_for_code
+        Launchy.open("https://slack.com/oauth/v2/authorize?client_id=#{ENV['SLACK_CLIENT_ID']}&user_scope=chat%3Awrite")
+    end
+    
+    # access token for testing purposes xoxp-1309750153941-1304391363350-1311279061490-5336b92ed4a34d1952d32fff54294069
+    def self.convert_code_to_access_token(code)
+        url = "https://slack.com/api/oauth.v2.access?code=#{code}&client_id=#{ENV['SLACK_CLIENT_ID']}&client_secret=#{ENV['SLACK_CLIENT_SECRET']}"
+        uri = URI.parse(url)
+        response = Net::HTTP.get_response(uri)
+        token = JSON.parse(response.body)
+        self.access_token = token["authed_user"]["access_token"]
+    end
+    
+
     def self.select_group_channel
         prompt = TTY::Prompt.new
-        url = "https://slack.com/api/conversations.list?token=#{ENV['SLACK_USER_TOKEN']}&types=public_channel%2Cprivate_channel&pretty=1"
+        url = "https://slack.com/api/conversations.list?token=#{self.access_token}&types=public_channel%2Cprivate_channel&pretty=1"
         uri = URI.parse(url)
         response = Net::HTTP::get_response(uri)
         all_info = JSON.parse(response.body)
@@ -68,12 +109,12 @@ module Slack
         end
 
         channel_id = selected_channel["id"]
-
+        self.post_something_as_user(channel_id)
     end
 
     def self.select_dm_convo
         prompt = TTY::Prompt.new
-        url = "https://slack.com/api/conversations.list?token=#{ENV['SLACK_USER_TOKEN']}&types=im&pretty=1"
+        url = "https://slack.com/api/conversations.list?token=#{self.access_token}&types=im&pretty=1"
         uri = URI.parse(url)
         response = Net::HTTP::get_response(uri)
         all_info = JSON.parse(response.body)
@@ -89,7 +130,6 @@ module Slack
         end
 
         answer = prompt.enum_select("Who would you like to send this to?", names)
-        binding.pry
 
         # get user id by name
         selected_user = users.find do |user|
@@ -102,20 +142,29 @@ module Slack
         end
 
         channel_id = selected_channel["id"]
+        self.post_something_as_user(channel_id)
     end
     
     def self.get_users_name(user)
-        url = "https://slack.com/api/users.info?token=xoxp-1309750153941-1304391363350-1311279061490-5336b92ed4a34d1952d32fff54294069&user=#{user}&pretty=1"
+        url = "https://slack.com/api/users.info?token=#{self.access_token}&user=#{user}&pretty=1"
         uri = URI.parse(url)
         response = Net::HTTP::get_response(uri)
         all_info = JSON.parse(response.body)
         all_info["user"]["name"]
     end
 
-    def post_something_as_user
+    def self.message_text
+        puts "What would you like to say along with the link?"
+        gets.chomp
+    end
+
+    def self.post_something_as_user(channel_id)
         #sends to selected channel (note this does not select the channel for you or enter the text)
-    
-        url = "https://slack.com/api/chat.postMessage?token=xoxp-1309750153941-1304391363350-1311279061490-5336b92ed4a34d1952d32fff54294069&channel=D018QB52AKH&text=hello%20here%20is%20a%20gif&as_user=true&pretty=1"
+        text = self.message_text
+        link = self.gif_link
+        combined_message = text + link
+
+        url = "https://slack.com/api/chat.postMessage?token=#{self.access_token}&channel=#{channel_id}&text=#{combined_message}&as_user=true&pretty=1"
         uri = URI.parse(url)
         request = Net::HTTP::Post.new(uri)
         request.content_type = "application/json"
@@ -128,46 +177,3 @@ module Slack
         end
     end
 end
-
-
-# this isn't even useful anymore lol
-def post_to_gifinder_channel
-    url = "#{ENV['GIFINDER_CHANNEL_WEBHOOK']}"
-   
-    uri = URI.parse(url)
-    request = Net::HTTP::Post.new(uri)
-    request.content_type = "application/json"
-    request.body = JSON.dump({
-    "text" => "now i have all the permissions"
-    })
-
-    req_options = {
-    use_ssl: uri.scheme == "https",
-    }
-
-    response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
-    http.request(request)
-    end
-end
-
-def launch_url_for_code
-    Launchy.open("https://slack.com/oauth/v2/authorize?client_id=#{ENV['SLACK_CLIENT_ID']}&user_scope=chat%3Awrite")
-end
-
-def convert_code_to_access_token
-    url = "https://slack.com/api/oauth.v2.access?code=#{ENV['SLACK_CODE']}&client_id=#{ENV['SLACK_CLIENT_ID']}&client_secret=#{ENV['SLACK_CLIENT_SECRET']}"
-    uri = URI.parse(url)
-    response = Net::HTTP.get_response(uri)
-    token = JSON.parse(response.body)
-    token = token["authed_user"]["access_token"]
-    #probably need to store the access token somewhere 
-end
-
-
-
-
-binding.pry
-# to post as the user all you really need to do is run it once to get the code and auth token.
-# could in theory write readme instructions for doing that in the browser and get the code variable programmatically
-# either way now we're authed to my account so i should be able to write methods to actually post stuff now.
-# and then obviously this gets reorganized in the saving class or whatever

@@ -162,6 +162,7 @@ DEPENDENCIES
   bundler
   catpix
   dotenv
+  launchy
   mini_magick
   omniauth
   omniauth-twitter
