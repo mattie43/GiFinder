@@ -20,22 +20,20 @@ class User < ActiveRecord::Base
         password = TTY::Prompt.new.mask("Please enter your password:")
 
         if !self.find_by(username: username).try(:authenticate, password)
-            puts "Your username or password is incorrect, please try again."
-            sleep(3.0)
-            welcome_screen
+            print TTY::Box.error("Incorrect username or password!")
+            sleep(2.0)
+            self.login
         else
             self.current_user = self.find_by(username: username)
+            print TTY::Box.success("Success! Signing you in..")
+            sleep(2.0)
             self.current_user.task_selection_screen
         end
         
     end
 
     def self.username_taken?(username)
-        if self.find_by(username: username)
-            true 
-        else
-            false
-        end
+        self.find_by(username: username)
     end
 
     def self.sign_up
@@ -43,22 +41,23 @@ class User < ActiveRecord::Base
 
         username = TTY::Prompt.new.ask("Please enter your username:")
         if username_taken?(username)
-            puts "That username is taken. Push Enter to try again."
-            gets.chomp
+            TTY::Prompt.new.keypress("That username is taken. Push Enter to try again.", keys: [:return])
             self.sign_up
         else
             password = TTY::Prompt.new.mask("Please enter your password:")
         
-            self.create(username: username, password: password)
-            puts "Congratulations, your account has been created! Push Enter to continue."
-            gets.chomp
-            welcome_screen
+            new_user = self.create(username: username, password: password)
+            print TTY::Box.success("Welcome back #{username}!")
+            sleep(2.0)
+            new_user.task_selection_screen
         end
     end
 
     def sign_out
         self.class.current_user = false
-        puts "You have been signed out."
+        print TTY::Box.success("Successfully signed out!")
+        sleep(2.0)
+        system 'clear'
         welcome_screen
     end
 
@@ -66,31 +65,25 @@ class User < ActiveRecord::Base
         system('clear')
 
         task = TTY::Prompt.new.select("What would you like to do?", %w(
-            create\ a\ category
-            view\ existing\ categories
-            search\ for\ a\ gif
-            view\ the\ gif\ of\ the\ day
-            sign\ out
+            Create\ a\ category
+            View\ existing\ categories
+            Search\ for\ a\ gif
+            View\ the\ top\ trending\ gifs
+            Sign\ out
         ))
 
         case task
-        when "create a category"
+        when "Create a category"
             self.create_category
-        when "view existing categories"
+        when "View existing categories"
             self.view_categories
-        when "search for a gif"
+        when "Search for a gif"
             Gif.search_giphy
-        when "view the gif of the day"
-            Gif.view_gif_of_the_day
-        when "sign out"
+        when "View the top trending gifs"
+            Gif.view_top_trending
+        when "Sign out"
             self.sign_out
         end
-    end
-
-    def return_to_selection_screen
-        puts "To return to the task selection screen, hit the Enter or Return key."
-        gets.chomp
-        self.task_selection_screen
     end
 
     def create_category
@@ -100,8 +93,9 @@ class User < ActiveRecord::Base
 
         self.categories.find_or_create_by(name: new_category_name, user_id: self.id)
 
-        puts "Thank you, your category has been created."
-        self.return_to_selection_screen
+        print TTY::Box.success("#{new_category_name} has been successfully created!")
+        sleep(2.0)
+        self.task_selection_screen
     end
 
     # User class (instance method)
@@ -109,26 +103,22 @@ class User < ActiveRecord::Base
         system('clear')
 
         if self.categories.length == 0
-            input = TTY::Prompt.new.select("You have not created any categories yet. What would you like to do?", %w(create\ a\ category return\ to\ menu))
+            input = TTY::Prompt.new.select("You have not created any categories yet. What would you like to do?", %w(Create\ a\ category Return\ to\ menu))
 
-            if input == "create a category"
+            if input == "Create a category"
                 self.create_category
-            elsif input == "return to menu"
+            elsif input == "Return to menu"
                 self.task_selection_screen
             end
 
         else
-            category_names = self.categories.all.map do |category|
-                category.name
-            end
+            category_names = self.categories.all.map { |category| category.name } << "Return to menu"
 
-            category_names << "return to menu"
-
-            category_choice = TTY::Prompt.new.select("Select a category to view its gifs, or return to menu.", category_names)
+            category_choice = TTY::Prompt.new.enum_select("Select a category to view its gifs, or return to menu.", category_names)
 
             if self.categories.find_by(name: category_choice)
                 self.view_gifs(category_choice)
-            elsif category_choice == "return to menu"
+            elsif category_choice == "Return to menu"
                 self.task_selection_screen
             end
         end
@@ -139,21 +129,35 @@ class User < ActiveRecord::Base
 
         chosen_category = self.categories.find_by(name: category_name)
         
-        gif_names = chosen_category.gifs.all.map do |gif|
-            gif.nickname
-        end
+        gif_names = chosen_category.gifs.all.map { |gif| gif.nickname } << "Return to menu"
 
-        gif_names << "return to menu"
-
-        gif_choice = TTY::Prompt.new.select("Select a gif, or return to menu.", gif_names)
+        gif_choice = TTY::Prompt.new.enum_select("Select a gif, or return to menu.", gif_names)
 
         gif_ins = chosen_category.gifs.find_by(nickname: gif_choice)
         if chosen_category.gifs.find_by(nickname: gif_choice)
-            Gif.display_gif(gif_ins.link)
-            # add delete/move
-            gif_ins.share_gif if TTY::Prompt.new.yes?("Would you like to share this gif?")
+            # display, then delete/share/move
+            self.delete_share_move(gif_ins)
+        elsif gif_choice == "Return to menu"
             self.task_selection_screen
-        elsif gif_choice == "return to menu"
+        end
+    end
+
+    def delete_share_move(gif_ins)
+        Gif.display_gif(gif_ins.link)
+        options = %w(Delete Move\ categories Share Return\ to\ menu)
+        answer = TTY::Prompt.new.select("What would you like to do with this gif?", options)
+        case answer
+        when "Delete"
+            gif_ins.delete
+            system 'clear'
+            print TTY::Box.warn("Gif successfully deleted.")
+            sleep(2.0)
+            self.task_selection_screen
+        when "Move categories"
+            
+        when "Share"
+            gif_ins.share_gif
+        when "Return to menu"
             self.task_selection_screen
         end
     end

@@ -104,8 +104,8 @@ class Gif < ActiveRecord::Base
             config.access_token        = ENV['ACCESS_TOKEN']
             config.access_token_secret = ENV['ACCESS_SECRET']
         end
-        answer = TTY::Prompt.new.ask("What would you like to say with this gif?")
-        client.update("#{answer}\n#{self.link}")
+        message = TTY::Prompt.new.ask("What would you like to say with this gif?")
+        client.update("#{message}\n#{self.link}")
 
         # url = URI("https://dev-udmy9c0g.us.auth0.com/api/v2/users/USER_ID")
 
@@ -122,7 +122,7 @@ class Gif < ActiveRecord::Base
 
 
     # in Gif class (class method)
-    def self.view_gif_of_the_day
+    def self.view_top_trending
         # add top 10 trending
         # url = "https://api.giphy.com/v1/gifs/trending?api_key=#{ENV['GIPHY_KEY']}&limit=1&rating=g"
         url = "https://api.giphy.com/v1/stickers/trending?api_key=#{ENV['GIPHY_KEY']}&limit=10&rating=g"
@@ -156,6 +156,7 @@ class Gif < ActiveRecord::Base
     
         5.times do
             gif_frames.times do |x|
+                system 'clear'
                 Catpix::print_image image.frames[x].path,
                 :limit_x => 0.8,
                 :limit_y => 0.8,
@@ -165,7 +166,6 @@ class Gif < ActiveRecord::Base
                 :bg_fill => true,
                 :resolution => "low"
                 sleep(0.1)
-                system 'clear'
             end
         end
     end
