@@ -48,10 +48,11 @@ class User < ActiveRecord::Base
         else
             password = TTY::Prompt.new.mask("Please enter your password:")
         
-            new_user = self.create(username: username, password: password)
-            print TTY::Box.success("Success! Signing you in..")
+            self.create(username: username, password: password)
+            print TTY::Box.success("Account created! Please sign in now.")
             sleep(2.0)
-            new_user.task_selection_screen
+            system 'clear'
+            welcome_screen
         end
     end
 

@@ -87,8 +87,9 @@ class Gif < ActiveRecord::Base
         number = gets.chomp
         puts "Enter a message to add:"
         message = gets.chomp
-        request.body = "message=#{message}#{self.link}&toNumber=1#{number}"
-        # show them a seccessful message sent
+        request.body = "message=#{message}\n#{self.link}&toNumber=1#{number}"
+        print TTY::Box.success("Message sent successfully!")
+        sleep(2.0)
         User.current_user.task_selection_screen
     end
 
@@ -106,6 +107,7 @@ class Gif < ActiveRecord::Base
         end
         message = TTY::Prompt.new.ask("What would you like to say with this gif?")
         client.update("#{message}\n#{self.link}")
+        print TTY::Box.success("Tweet made successfully!")
         User.current_user.task_selection_screen
 
         # url = URI("https://dev-udmy9c0g.us.auth0.com/api/v2/users/USER_ID")
@@ -153,10 +155,10 @@ class Gif < ActiveRecord::Base
         # not sure if we want to resize here or not
         # image.resize "100x100"
         # binding.pry
-    
+        
         gif_frames = image.frames.length - 1
         gif_frames = 15 if gif_frames > 15
-    
+        
         5.times do
             gif_frames.times do |x|
                 system 'clear'

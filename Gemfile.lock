@@ -24,6 +24,9 @@ GEM
       tco (~> 0.1, >= 0.1.8)
     coderay (1.1.3)
     concurrent-ruby (1.1.7)
+    curl (0.0.9)
+      awesome_print (>= 0.2.1)
+      unidecoder (>= 1.1.1)
     docopt (0.6.1)
     domain_name (0.5.20190701)
       unf (>= 0.0.5, < 1.0.0)
@@ -141,6 +144,8 @@ GEM
       multipart-post (~> 2.0)
       naught (~> 1.0)
       simple_oauth (~> 0.3.0)
+    twurl (0.9.5)
+      oauth (~> 0.4)
     tzinfo (1.2.7)
       thread_safe (~> 0.1)
     unf (0.1.4)
@@ -148,6 +153,7 @@ GEM
     unf_ext (0.0.7.7)
     unicode-display_width (1.7.0)
     unicode_utils (1.4.0)
+    unidecoder (1.1.2)
     wisper (2.0.1)
     zeitwerk (2.4.0)
 
@@ -159,6 +165,7 @@ DEPENDENCIES
   awesome_print
   bcrypt (~> 3.1.7)
   catpix
+  curl
   dotenv
   mini_magick
   omniauth
@@ -176,6 +183,7 @@ DEPENDENCIES
   tty-box
   tty-prompt
   twitter
+  twurl
 
 BUNDLED WITH
    2.1.4
