@@ -83,10 +83,8 @@ class Gif < ActiveRecord::Base
         request["x-rapidapi-key"] = ENV['RAPID_API_KEY']
         request["content-type"] = 'application/x-www-form-urlencoded'
 
-        puts "Enter the number you would like to send this gif to:"
-        number = gets.chomp
-        puts "Enter a message to add:"
-        message = gets.chomp
+        number = TTY::Prompt.new.mask("What number would you like to send this gif to?")
+        message = TTY::Prompt.new.ask("What would you like to say with this gif?")
         request.body = "message=#{message}\n#{self.link}&toNumber=1#{number}"
         print TTY::Box.success("Message sent successfully!")
         sleep(2.0)
