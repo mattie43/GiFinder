@@ -1,0 +1,33 @@
+
+[1mFrom:[0m /mnt/c/Users/alyss/dev/flatiron/labs/Mod1/project/Mod1-Project/app/slack.rb:94 Slack.select_dm_convo:
+
+     [1;34m85[0m: [32mdef[0m [1;36mself[0m.[1;34mselect_dm_convo[0m
+     [1;34m86[0m:     prompt = [1;34;4mTTY[0m::[1;34;4mPrompt[0m.new
+     [1;34m87[0m:     url = [31m[1;31m"[0m[31mhttps://slack.com/api/conversations.list?token=#{self.access_token}[0m[31m&types=im&pretty=1[1;31m"[0m[31m[0m
+     [1;34m88[0m:     uri = [1;34;4mURI[0m.parse(url)
+     [1;34m89[0m:     response = [1;34;4mNet[0m::[1;34;4mHTTP[0m::get_response(uri)
+     [1;34m90[0m:     all_info = [1;34;4mJSON[0m.parse(response.body)
+     [1;34m91[0m:     users = all_info[[31m[1;31m"[0m[31mchannels[1;31m"[0m[31m[0m].map [32mdo[0m |channel|
+     [1;34m92[0m:         channel[[31m[1;31m"[0m[31muser[1;31m"[0m[31m[0m]
+     [1;34m93[0m:     [32mend[0m
+ =>  [1;34m94[0m:     binding.pry
+     [1;34m95[0m:     names = users.map [32mdo[0m |user|
+     [1;34m96[0m:         get_users_name(user)
+     [1;34m97[0m:     [32mend[0m
+     [1;34m98[0m: 
+     [1;34m99[0m:     answer = prompt.enum_select([31m[1;31m"[0m[31mWho would you like to send this to?[1;31m"[0m[31m[0m, names)
+    [1;34m100[0m:     
+    [1;34m101[0m:     [1;34m# get user id by name[0m
+    [1;34m102[0m:     selected_user = users.find [32mdo[0m |user|
+    [1;34m103[0m:         [1;36mself[0m.get_users_name(user) == answer
+    [1;34m104[0m:     [32mend[0m
+    [1;34m105[0m: 
+    [1;34m106[0m:     [1;34m# find channel by user id[0m
+    [1;34m107[0m:     selected_channel = all_info[[31m[1;31m"[0m[31mchannels[1;31m"[0m[31m[0m].find [32mdo[0m |channel|
+    [1;34m108[0m:         channel[[31m[1;31m"[0m[31muser[1;31m"[0m[31m[0m] == selected_user
+    [1;34m109[0m:     [32mend[0m
+    [1;34m110[0m: 
+    [1;34m111[0m:     channel_id = selected_channel[[31m[1;31m"[0m[31mid[1;31m"[0m[31m[0m]
+    [1;34m112[0m:     [1;36mself[0m.post_something_as_user(channel_id)
+    [1;34m113[0m: [32mend[0m
+

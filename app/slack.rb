@@ -1,5 +1,5 @@
 module Slack
-@@access_token
+@@access_token 
 @@gif_link
 
     def self.access_token
@@ -20,8 +20,8 @@ module Slack
 
     def self.slack_gif(gif_link)
         self.gif_link = gif_link
-
         self.sign_in
+
 
         prompt = TTY::Prompt.new
         options = Pastel.new.decorate("\e[32mShare with a channel,\e[36mSend a direct message,\e[31mReturn to menu\e[0m").split(",")
@@ -49,7 +49,7 @@ module Slack
     end
 
     def self.launch_url_for_code
-        Launchy.open("https://slack.com/oauth/v2/authorize?client_id=#{ENV['SLACK_CLIENT_ID']}&user_scope=chat%3Awrite")
+        Launchy.open("https://slack.com/oauth/v2/authorize?client_id=#{ENV['SLACK_CLIENT_ID']}&user_scope=chat%3Awrite,channels:read,groups:read,mpim:read,im:read")
     end
     
     def self.convert_code_to_access_token(code)
@@ -67,7 +67,7 @@ module Slack
         uri = URI.parse(url)
         response = Net::HTTP::get_response(uri)
         all_info = JSON.parse(response.body)
-        binding.pry
+  
         names = all_info["channels"].map do |channel|
             channel["name"]
         end
@@ -88,17 +88,15 @@ module Slack
         uri = URI.parse(url)
         response = Net::HTTP::get_response(uri)
         all_info = JSON.parse(response.body)
-
         users = all_info["channels"].map do |channel|
             channel["user"]
         end
-
         names = users.map do |user|
             get_users_name(user)
         end
 
         answer = prompt.enum_select("Who would you like to send this to?", names)
-
+        
         # get user id by name
         selected_user = users.find do |user|
             self.get_users_name(user) == answer
@@ -114,6 +112,7 @@ module Slack
     end
     
     def self.get_users_name(user)
+
         url = "https://slack.com/api/users.info?token=#{self.access_token}&user=#{user}&pretty=1"
         uri = URI.parse(url)
         response = Net::HTTP::get_response(uri)
