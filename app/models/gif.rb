@@ -92,7 +92,6 @@ class Gif < ActiveRecord::Base
         system 'clear'
         image = MiniMagick::Image.open(giphy_link)
         image.strip
-        # ImageOptimizer.new(image.path, quiet: true).optimize
         
         gif_frames = image.frames.length - 1
         gif_frames = 15 if gif_frames > 15
@@ -105,7 +104,6 @@ class Gif < ActiveRecord::Base
                 :limit_y => 0.8,
                 :center_x => false,
                 :center_y => false,
-                # :bg => "black",
                 :bg_fill => false,
                 :resolution => "low"
                 sleep(0.09)

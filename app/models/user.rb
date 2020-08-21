@@ -46,7 +46,6 @@ class User < ActiveRecord::Base
             self.sign_up
         else
             password = TTY::Prompt.new.mask("Please enter your password:")
-        
             self.create(username: username, password: password)
             print TTY::Box.success("Account created! Please sign in now.")
             sleep(2.0)
@@ -89,12 +88,14 @@ class User < ActiveRecord::Base
         new_category_name = TTY::Prompt.new.ask("What is the name of the new category?\n")
 
         category_check = self.categories.find_by(name: new_category_name, user_id: self.id)
+
         if category_check == nil
             self.categories.create(name: new_category_name, user_id: self.id)
             print TTY::Box.success("#{new_category_name} has been successfully created!")
         else
             print TTY::Box.info("#{new_category_name} already exists!")
         end
+        
         sleep(2.0)
         self.task_selection_screen
     end
@@ -112,11 +113,8 @@ class User < ActiveRecord::Base
             elsif input == "\e[31mReturn to menu\e[0m"
                 self.task_selection_screen
             end
-
         else
             category_names = self.categories.all.map { |category| category.name } << $return_to_menu
-
-            #TODO: add deleting category once we have a system for moving gifs (can only delete once empty)
             category_choice = TTY::Prompt.new.enum_select("Select a category to change its name or view its gifs, or return to menu.", category_names)
 
             if self.categories.find_by(name: category_choice)
@@ -134,15 +132,9 @@ class User < ActiveRecord::Base
                     gets.chomp
                     self.task_selection_screen
                 end
-                
             elsif category_choice == $return_to_menu
                 self.task_selection_screen
             end
         end
     end
-
-
-
-
-
 end

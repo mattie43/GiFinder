@@ -53,7 +53,6 @@ module Slack
         Launchy.open("https://slack.com/oauth/v2/authorize?client_id=#{ENV['SLACK_CLIENT_ID']}&user_scope=chat%3Awrite")
     end
     
-    # access token for testing purposes xoxp-1309750153941-1304391363350-1311279061490-5336b92ed4a34d1952d32fff54294069
     def self.convert_code_to_access_token(code)
         url = "https://slack.com/api/oauth.v2.access?code=#{code}&client_id=#{ENV['SLACK_CLIENT_ID']}&client_secret=#{ENV['SLACK_CLIENT_SECRET']}"
         uri = URI.parse(url)
@@ -91,8 +90,6 @@ module Slack
         response = Net::HTTP::get_response(uri)
         all_info = JSON.parse(response.body)
 
-        
-
         users = all_info["channels"].map do |channel|
             channel["user"]
         end
@@ -108,7 +105,7 @@ module Slack
             self.get_users_name(user) == answer
         end
 
-        # have user, now go back to channels and find matching id
+        # find channel by user id
         selected_channel = all_info["channels"].find do |channel|
             channel["user"] == selected_user
         end
@@ -131,7 +128,6 @@ module Slack
     end
 
     def self.post_something_as_user(channel_id)
-        #sends to selected channel (note this does not select the channel for you or enter the text)
         text = self.message_text
         link = self.gif_link
         combined_message = text + link
@@ -140,14 +136,16 @@ module Slack
         uri = URI.parse(url)
         request = Net::HTTP::Post.new(uri)
         request.content_type = "application/json"
+
         req_options = {
         use_ssl: uri.scheme == "https",
         }
     
         response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
-        http.request(request)
+            http.request(request)
         end
 
         puts "Your message has been sent!"
+        sleep(2.0)
     end
 end
