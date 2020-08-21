@@ -22,7 +22,7 @@ class Category < ActiveRecord::Base
 
     def delete_share_move(user, gif_ins)
         Gif.display_gif(gif_ins.link)
-        options = %w(Rename Delete Move\ categories Share Return\ to\ menu)
+        options = %w(Rename Delete Move\ categories Share view\ in\ browser Return\ to\ menu)
         answer = TTY::Prompt.new.select("What would you like to do with this gif?", options)
         case answer
         when "Rename"
@@ -45,6 +45,9 @@ class Category < ActiveRecord::Base
             #
         when "Share"
             gif_ins.share_gif
+        when "view in browser"
+            Launchy.open(gif_ins.link)
+            user.task_selection_screen
         when "Return to menu"
             user.task_selection_screen
         end
