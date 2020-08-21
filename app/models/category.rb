@@ -14,9 +14,9 @@ class Category < ActiveRecord::Base
         gif_ins = chosen_category.gifs.find_by(nickname: gif_choice)
         if chosen_category.gifs.find_by(nickname: gif_choice)
             # display, then delete/share/move
-            chosen_category.delete_share_move(gif_ins)
+            chosen_category.delete_share_move(user, gif_ins)
         elsif gif_choice == "Return to menu"
-            User.current_user.task_selection_screen
+            user.task_selection_screen
         end
     end
 
@@ -33,24 +33,27 @@ class Category < ActiveRecord::Base
 
             puts "This gif's nickname has been changed from #{answer} to #{new_name}. Push Enter to return to the task selection screen."
             gets.chomp
-            User.current_user.task_selection_screen
+            user.task_selection_screen
 
         when "Delete"
             system 'clear'
             print TTY::Box.warn("Gif will be deleted permanently.")
             key_pressed = TTY::Prompt.new.keypress("Press ENTER to continue with deletion, or ESC to cancel.", keys: [:return, :escape])
             gif_ins.delete if key_pressed == "\r"
-            User.current_user.task_selection_screen
+            user.task_selection_screen
         when "Move categories"
             category_names = User.current_user.categories.all.map { |category| category.name }
             category_choice = TTY::Prompt.new.enum_select("Select a category to move this gif to.", category_names)
             category_ins = User.current_user.categories.find_by(name: category_choice)
             gif_ins.update(category: category_ins)
-            User.current_user.task_selection_screen
+            user.task_selection_screen
         when "Share"
             gif_ins.share_gif
+        when "view in browser"
+            Launchy.open(gif_ins.link)
+            user.task_selection_screen
         when "Return to menu"
-            User.current_user.task_selection_screen
+            user.task_selection_screen
         end
     end
 end

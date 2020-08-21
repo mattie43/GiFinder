@@ -27,12 +27,15 @@ class Gif < ActiveRecord::Base
 
     def save_or_share
         prompt = TTY::Prompt.new
-        answer = prompt.select("What would you like to do with this gif?", %w(Save Share Return\ to\ menu))
+        answer = prompt.select("What would you like to do with this gif?", %w(Save Share view\ in\ browser Return\ to\ menu))
         case answer
         when "Save"
             self.save_gif
         when "Share"
             self.share_gif
+        when "view in browser"
+            Launchy.open(self.link)
+            User.current_user.task_selection_screen
         when "Return to menu"
             User.current_user.task_selection_screen
         end
