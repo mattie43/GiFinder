@@ -5,7 +5,7 @@ class Category < ActiveRecord::Base
     def self.view_gifs(category_name)
         system('clear')
 
-        chosen_category = user.categories.find_by(name: category_name)
+        chosen_category = User.current_user.categories.find_by(name: category_name)
         gif_names = chosen_category.gifs.all.map { |gif| gif.nickname } << $return_to_menu
         gif_choice = TTY::Prompt.new.enum_select("Select a gif, or return to menu.", gif_names)
         gif_ins = chosen_category.gifs.find_by(nickname: gif_choice)
@@ -28,9 +28,9 @@ class Category < ActiveRecord::Base
             puts "What is the new nickname for the gif?\n"
             new_name = gets.chomp
 
-            gifs.find_by(nickname: answer).update(nickname: new_name)
+            gifs.find_by(nickname: gif_ins.nickname).update(nickname: new_name)
 
-            puts "This gif's nickname has been changed from #{answer} to #{new_name}. Push Enter to return to the task selection screen."
+            puts "This gif's nickname has been changed to #{new_name}. Push Enter to return to the task selection screen."
             gets.chomp
         when "\e[36mDelete"
             system 'clear'

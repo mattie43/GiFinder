@@ -1,5 +1,5 @@
 module Slack
-@@access_token = ENV['SLACK_ACCESS_TOKEN']
+@@access_token
 @@gif_link
 
     def self.access_token
@@ -21,19 +21,18 @@ module Slack
     def self.slack_gif(gif_link)
         self.gif_link = gif_link
 
-        if !self.access_token
-            self.sign_in
-        end
+        self.sign_in
 
         prompt = TTY::Prompt.new
-        answer = prompt.select("Would you like to share this with a channel or send a direct message?", %w(share\ with\ a\ channel send\ a\ direct\ message never\ mind,\ return\ to\ menu))
+        options = Pastel.new.decorate("\e[32mShare with a channel,\e[36mSend a direct message,\e[31mReturn to menu\e[0m").split(",")
+        answer = prompt.select("Would you like to share this with a channel or send a direct message?", options)
         
         case answer
-        when "share with a channel"
+        when "\e[32mShare with a channel"
             self.select_group_channel
-        when "send a direct message"
+        when "\e[36mSend a direct message"
             self.select_dm_convo
-        when "never mind, return to menu"
+        when "\e[31mReturn to menu\e[0m"
             User.current_user.task_selection_screen
         end
     end
@@ -68,7 +67,7 @@ module Slack
         uri = URI.parse(url)
         response = Net::HTTP::get_response(uri)
         all_info = JSON.parse(response.body)
-        
+        binding.pry
         names = all_info["channels"].map do |channel|
             channel["name"]
         end

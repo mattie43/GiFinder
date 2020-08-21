@@ -37,7 +37,8 @@ class Gif < ActiveRecord::Base
             self.share_gif
         when "\e[35mView in browser"
             Launchy.open(self.link)
-            User.current_user.task_selection_screen
+            # User.current_user.task_selection_screen
+            self.save_or_share
         when "\e[31mReturn to menu\e[0m"
             User.current_user.task_selection_screen
         end
@@ -60,7 +61,7 @@ class Gif < ActiveRecord::Base
     end
 
     def share_gif
-        options = Pastel.new.decorate("\e[32mTwitter,\e[36mText,\e[35mSlack,\e[33mCopy Link,\e[31mReturn to menu\e[0m").split(",")
+        options = Pastel.new.decorate("\e[32mTwitter,\e[36mText,\e[35mSlack,\e[33mCopy link,\e[31mReturn to menu\e[0m").split(",")
         answer = TTY::Prompt.new.select("Where would you like to send this?", options)
         case answer
         when "\e[32mTwitter"

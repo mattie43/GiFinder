@@ -21,9 +21,9 @@ def welcome_screen
     case choice
     when "\e[32mLogin"
         User.login
-    when "\e[36mSign up"
+    when "\e[33mSign up"
         User.sign_up
-    when "\e[33mExit\e[0m"
+    when "\e[31mExit\e[0m"
         exit
     end
 end

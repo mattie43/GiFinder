@@ -118,13 +118,13 @@ class User < ActiveRecord::Base
             category_choice = TTY::Prompt.new.enum_select("Select a category to change its name or view its gifs, or return to menu.", category_names)
 
             if self.categories.find_by(name: category_choice)
-                options = Pastel.new.decorate("\e[32mView gifs,\e[36mChange name").split(",")
+                options = Pastel.new.decorate("\e[32mView gifs,\e[36mChange name\e[0m").split(",")
                 choice = TTY::Prompt.new.select("What would you like to do with the #{category_choice} category?", options)
 
                 case choice
                 when "\e[32mView gifs"
                     Category.view_gifs(category_choice)
-                when "\e[36mChange name"
+                when "\e[36mChange name\e[0m"
                     new_name = TTY::Prompt.new.ask("What is the new name for the category?\n")
 
                     categories.find_by(name: category_choice).update(name: new_name)
