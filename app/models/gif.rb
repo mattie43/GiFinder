@@ -27,16 +27,17 @@ class Gif < ActiveRecord::Base
 
     def save_or_share
         prompt = TTY::Prompt.new
-        answer = prompt.select("What would you like to do with this gif?", %w(Save Share view\ in\ browser Return\ to\ menu))
+        options = Pastel.new.decorate("\e[32mSave,\e[36mShare,\e[35mView in browser,\e[31mReturn to menu\e[0m").split(",")
+        answer = prompt.select("What would you like to do with this gif?", options)
         case answer
-        when "Save"
+        when "\e[32mSave"
             self.save_gif
-        when "Share"
+        when "\e[36mShare"
             self.share_gif
-        when "view in browser"
+        when "\e[35mView in browser"
             Launchy.open(self.link)
             User.current_user.task_selection_screen
-        when "Return to menu"
+        when "\e[31mReturn to menu\e[0m"
             User.current_user.task_selection_screen
         end
     end
@@ -56,20 +57,21 @@ class Gif < ActiveRecord::Base
     end
 
     def share_gif
-        answer = TTY::Prompt.new.select("Where would you like to send this?", %w(Twitter Text Slack copy\ link Return\ to\ menu))
+        options = Pastel.new.decorate("\e[32mTwitter,\e[36mText,\e[35mSlack,\e[33mCopy Link,\e[31mReturn to menu\e[0m").split(",")
+        answer = TTY::Prompt.new.select("Where would you like to send this?", options)
         case answer
-        when "Twitter"
+        when "\e[32mTwitter"
             Twitter.tweet_gif(self)
             User.current_user.task_selection_screen
-        when "Text"
+        when "\e[36mText"
             Text.text_gif(self)
             User.current_user.task_selection_screen
-        when "Slack"
+        when "\e[35mSlack"
             Slack.slack_gif(self.link)
-        when "copy link"
+        when "\e[33mCopy link"
             puts "Link to copy:"
             puts self.link
-        when "Return to menu"
+        when "\e[31mReturn to menu\e[0m"
             User.current_user.task_selection_screen
         end
     end

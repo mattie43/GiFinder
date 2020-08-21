@@ -66,24 +66,19 @@ class User < ActiveRecord::Base
     def task_selection_screen
         system('clear')
 
-        task = TTY::Prompt.new.select("What would you like to do?", %w(
-            Create\ a\ category
-            View\ existing\ categories
-            Search\ for\ a\ gif
-            View\ the\ top\ trending\ gifs
-            Sign\ out
-        ))
+        options = Pastel.new.decorate("\e[32mCreate a category,\e[36mView existing categories,\e[35mSearch for a gif,\e[33mView the top trending gifs,\e[31mSign out\e[0m").split(",")
+        task = TTY::Prompt.new.select("What would you like to do?", options)
 
         case task
-        when "Create a category"
+        when "\e[32mCreate a category"
             self.create_category
-        when "View existing categories"
+        when "\e[36mView existing categories"
             self.view_categories
-        when "Search for a gif"
+        when "\e[35mSearch for a gif"
             Gif.search_giphy
-        when "View the top trending gifs"
+        when "\e[33mView the top trending gifs"
             Gif.view_top_trending
-        when "Sign out"
+        when "\e[31mSign out\e[0m"
             self.sign_out
         end
     end
@@ -109,27 +104,29 @@ class User < ActiveRecord::Base
         system('clear')
 
         if self.categories.length == 0
-            input = TTY::Prompt.new.select("You have not created any categories yet. What would you like to do?", %w(Create\ a\ category Return\ to\ menu))
+            options = Pastel.new.decorate("\e[32mCreate a category,\e[31mReturn to menu\e[0m").split(",")
+            input = TTY::Prompt.new.select("You have not created any categories yet. What would you like to do?", options)
 
-            if input == "Create a category"
+            if input == "\e[32mCreate a category"
                 self.create_category
-            elsif input == "Return to menu"
+            elsif input == "\e[31mReturn to menu\e[0m"
                 self.task_selection_screen
             end
 
         else
-            category_names = self.categories.all.map { |category| category.name } << "Return to menu"
+            category_names = self.categories.all.map { |category| category.name } << $return_to_menu
 
             #TODO: add deleting category once we have a system for moving gifs (can only delete once empty)
             category_choice = TTY::Prompt.new.enum_select("Select a category to change its name or view its gifs, or return to menu.", category_names)
 
             if self.categories.find_by(name: category_choice)
-                choice = TTY::Prompt.new.select("What would you like to do with the #{category_choice} category?", %w(view\ gifs change\ name))
+                options = Pastel.new.decorate("\e[32mView gifs,\e[36mChange name").split(",")
+                choice = TTY::Prompt.new.select("What would you like to do with the #{category_choice} category?", options)
 
                 case choice
-                when "view gifs"
+                when "\e[32mView gifs"
                     Category.view_gifs(self, category_choice)
-                when "change name"
+                when "\e[36mChange name"
                     new_name = TTY::Prompt.new.ask("What is the new name for the category?\n")
 
                     categories.find_by(name: category_choice).update(name: new_name)
@@ -138,7 +135,7 @@ class User < ActiveRecord::Base
                     self.task_selection_screen
                 end
                 
-            elsif category_choice == "Return to menu"
+            elsif category_choice == $return_to_menu
                 self.task_selection_screen
             end
         end
