@@ -70,15 +70,17 @@ module Slack
 		response = Net::HTTP::get_response(uri)
 		all_info = JSON.parse(response.body)
 		
-		names = all_info["channels"].map do |channel|
-			channel["name"]
-		end
+		names = 
+			all_info["channels"].map do |channel|
+				channel["name"]
+			end
 
 		answer = prompt.enum_select("Which channel would you like to post to?", names)
 
-		selected_channel = all_info["channels"].find do |channel|
-			channel["name"] == answer
-		end
+		selected_channel = 
+			all_info["channels"].find do |channel|
+				channel["name"] == answer
+			end
 
 		channel_id = selected_channel["id"]
 		self.post_something_as_user(channel_id)
@@ -93,25 +95,29 @@ module Slack
 
 		
 
-		users = all_info["channels"].map do |channel|
-			channel["user"]
-		end
+		users = 
+			all_info["channels"].map do |channel|
+				channel["user"]
+			end
 
-		names = users.map do |user|
-			get_users_name(user)
-		end
+		names = 
+			users.map do |user|
+				get_users_name(user)
+			end
 
 		answer = prompt.enum_select("Who would you like to send this to?", names)
 
 		# get user id by name
-		selected_user = users.find do |user|
-			self.get_users_name(user) == answer
-		end
+		selected_user = 
+			users.find do |user|
+				self.get_users_name(user) == answer
+			end
 
 		# have user, now go back to channels and find matching id
-		selected_channel = all_info["channels"].find do |channel|
-			channel["user"] == selected_user
-		end
+		selected_channel = 
+			all_info["channels"].find do |channel|
+				channel["user"] == selected_user
+			end
 
 		channel_id = selected_channel["id"]
 		self.post_something_as_user(channel_id)
@@ -144,9 +150,10 @@ module Slack
 		use_ssl: uri.scheme == "https",
 		}
 
-		response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
-			http.request(request)
-		end
+		response = 
+		  Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
+				http.request(request)
+			end
 
 		puts "Your message has been sent!"
 	end
