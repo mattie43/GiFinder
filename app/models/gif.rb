@@ -106,8 +106,8 @@ class Gif < ActiveRecord::Base
                 :limit_y => 0.8,
                 :center_x => false,
                 :center_y => false,
-                :bg => "black",
-                :bg_fill => true,
+                # :bg => "black",
+                :bg_fill => false,
                 :resolution => "low"
                 sleep(0.09)
             end
