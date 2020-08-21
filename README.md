@@ -32,3 +32,6 @@
     windows instructions:
 
     export BROWSER='/mnt/c/Program\ Files\ \(x86\)/Google/Chrome/Application/chrome.exe'
+
+# change a category name
+# move a gif to a different category
