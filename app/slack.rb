@@ -67,7 +67,7 @@ module Slack
         uri = URI.parse(url)
         response = Net::HTTP::get_response(uri)
         all_info = JSON.parse(response.body)
-  
+        binding.pry
         names = all_info["channels"].map do |channel|
             channel["name"]
         end
@@ -91,6 +91,7 @@ module Slack
         users = all_info["channels"].map do |channel|
             channel["user"]
         end
+
         names = users.map do |user|
             get_users_name(user)
         end
@@ -112,7 +113,6 @@ module Slack
     end
     
     def self.get_users_name(user)
-
         url = "https://slack.com/api/users.info?token=#{self.access_token}&user=#{user}&pretty=1"
         uri = URI.parse(url)
         response = Net::HTTP::get_response(uri)
