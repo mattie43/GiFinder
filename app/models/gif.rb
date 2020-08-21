@@ -25,21 +25,22 @@ class Gif < ActiveRecord::Base
 		new_gif.save_or_share
 	end
 
-	def save_or_share
-		prompt = TTY::Prompt.new
-		answer = prompt.select("What would you like to do with this gif?", %w(Save Share view\ in\ browser Return\ to\ menu))
-		case answer
-		when "Save"
-			self.save_gif
-		when "Share"
-			self.share_gif
-		when "view in browser"
-			Launchy.open(self.link)
-			User.current_user.task_selection_screen
-		when "Return to menu"
-			User.current_user.task_selection_screen
-		end
-	end
+    def save_or_share
+        prompt = TTY::Prompt.new
+        options = Pastel.new.decorate("\e[32mSave,\e[36mShare,\e[35mView in browser,\e[31mReturn to menu\e[0m").split(",")
+        answer = prompt.select("What would you like to do with this gif?", options)
+        case answer
+        when "\e[32mSave"
+            self.save_gif
+        when "\e[36mShare"
+            self.share_gif
+        when "\e[35mView in browser"
+            Launchy.open(self.link)
+            User.current_user.task_selection_screen
+        when "\e[31mReturn to menu\e[0m"
+            User.current_user.task_selection_screen
+        end
+    end
 
 	def save_gif
 		prompt = TTY::Prompt.new
@@ -56,36 +57,38 @@ class Gif < ActiveRecord::Base
 	end
 
 	def share_gif
-		answer = TTY::Prompt.new.select("Where would you like to send this?", %w(Twitter Text Slack copy\ link Return\ to\ menu))
-		case answer
-		when "Twitter"
-			Twitter.tweet_gif(self)
-			User.current_user.task_selection_screen
-		when "Text"
-			Text.text_gif(self)
-			User.current_user.task_selection_screen
-		when "Slack"
-			Slack.slack_gif(self.link)
-		when "copy link"
-			puts "Link to copy:"
-			puts self.link
-		when "Return to menu"
-			User.current_user.task_selection_screen
-		end
+			options = Pastel.new.decorate("\e[32mTwitter,\e[36mText,\e[35mSlack,\e[33mCopy Link,\e[31mReturn to menu\e[0m").split(",")
+			answer = TTY::Prompt.new.select("Where would you like to send this?", options)
+			case answer
+			when "\e[32mTwitter"
+					Twitter.tweet_gif(self)
+					User.current_user.task_selection_screen
+			when "\e[36mText"
+					Text.text_gif(self)
+					User.current_user.task_selection_screen
+			when "\e[35mSlack"
+					Slack.slack_gif(self.link)
+			when "\e[33mCopy link"
+					puts "Link to copy:"
+					puts self.link
+			when "\e[31mReturn to menu\e[0m"
+					User.current_user.task_selection_screen
+			end
 	end
-
+	
 	def self.view_top_trending
-		# url = "https://api.giphy.com/v1/gifs/trending?api_key=#{ENV['GIPHY_KEY']}&limit=1&rating=g"
-		url = "https://api.giphy.com/v1/stickers/trending?api_key=#{ENV['GIPHY_KEY']}&limit=10&rating=g"
-		uri = URI.parse(url)
-		response = Net::HTTP.get_response(uri)
-		search_results = JSON.parse(response.body)
-		
-		# show top 10 results, and select from there which to display
-		titles_arr = []
-		10.times { |x| titles_arr << {search_results["data"][x]["title"] => x} }
-		answer = TTY::Prompt.new.enum_select("Which gif would you like to view?", titles_arr)
+			# url = "https://api.giphy.com/v1/gifs/trending?api_key=#{ENV['GIPHY_KEY']}&limit=1&rating=g"
+			url = "https://api.giphy.com/v1/stickers/trending?api_key=#{ENV['GIPHY_KEY']}&limit=10&rating=g"
+			uri = URI.parse(url)
+			response = Net::HTTP.get_response(uri)
+			search_results = JSON.parse(response.body)
+			
+			# show top 10 results, and select from there which to display
+			titles_arr = []
+			10.times { |x| titles_arr << {search_results["data"][x]["title"] => x} }
+			answer = TTY::Prompt.new.enum_select("Which gif would you like to view?", titles_arr)
 
+	
 		# choose original url specifically
 		gif_link = search_results["data"][answer]["images"]["original"]["url"]
 		
