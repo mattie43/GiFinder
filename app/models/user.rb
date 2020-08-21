@@ -128,7 +128,7 @@ class User < ActiveRecord::Base
 
                 case choice
                 when "view gifs"
-                    Category.view_gifs(category_choice)
+                    Category.view_gifs(self, category_choice)
                 when "change name"
                     new_name = TTY::Prompt.new.ask("What is the new name for the category?\n")
 
