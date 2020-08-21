@@ -41,17 +41,17 @@ class User < ActiveRecord::Base
 
         username = TTY::Prompt.new.ask("Please enter your username:")
         if username_taken?(username)
-            # TTY::Prompt.new.keypress("That username is taken. Push Enter to try again.", keys: [:return])
             print TTY::Box.info("That username is already taken!")
             sleep(2.0)
             self.sign_up
         else
             password = TTY::Prompt.new.mask("Please enter your password:")
         
-            new_user = self.create(username: username, password: password)
-            print TTY::Box.success("Success! Signing you in..")
+            self.create(username: username, password: password)
+            print TTY::Box.success("Account created! Please sign in now.")
             sleep(2.0)
-            new_user.task_selection_screen
+            system 'clear'
+            welcome_screen
         end
     end
 
